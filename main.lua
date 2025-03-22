@@ -1,5 +1,15 @@
 local baseUrl = "https://raw.githubusercontent.com/None7464/testss/main/skibidi/"
 
+local function ModifyPrompts()
+    for _, v in ipairs(game:GetService("Workspace"):GetDescendants()) do
+        if v:IsA("ProximityPrompt") then
+            v.HoldDuration = 0
+        end
+    end
+end
+
+ModifyPrompts()
+
 local Config = loadstring(game:HttpGet(baseUrl .. "Config.lua"))()
 local Utilities = loadstring(game:HttpGet(baseUrl .. "Utilities.lua"))()
 local ESP = loadstring(game:HttpGet(baseUrl .. "ESP/ESP.lua"))()(Config, Utilities)
