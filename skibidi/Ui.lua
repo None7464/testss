@@ -1,5 +1,5 @@
 return function(Config, ESP, Aimbot, Gunmod)
-    local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/None7464/Roblox/refs/heads/main/The%20Red%20Lake/UI/Main", true))()
+    local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/None7464/Roblox/main/The%20Red%20Lake/UI/Main"))()
     local RunService = game:GetService("RunService")
     local Lighting = game:GetService("Lighting")
     local Loop
