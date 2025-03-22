@@ -14,7 +14,7 @@ local function SafeLoad(url)
             return nil
         end
     else
-        warn("Failed to load:", url, result)
+        warn("Failed to load:", url, "Error:", result)
         return nil
     end
 end
@@ -25,11 +25,11 @@ local ESP = SafeLoad(baseUrl .. "ESP/ESP.lua") or function() return {} end
 local Gunmod = SafeLoad(baseUrl .. "Gunmod.lua") or {}
 local Aimbot = SafeLoad(baseUrl .. "Aimbot.lua") or {}
 
-local UI = SafeLoad(baseUrl .. "UI.lua")
-if type(UI) == "function" then
+local UI = SafeLoad(baseUrl .. "Ui.lua") -- Check if it loads correctly
+if UI then
     UI(Config, ESP, Aimbot, Gunmod)
 else
-    warn("UI.lua did not return a valid function")
+    warn("UI failed to load!")
 end
 
 if ESP.Initialize then ESP.Initialize() end
