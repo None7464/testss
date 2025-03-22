@@ -4,8 +4,15 @@ local function SafeLoad(url)
     local success, result = pcall(function()
         return game:HttpGet(url)
     end)
-    if success then
-        return loadstring(result)()
+    
+    if success and result and result ~= "" then
+        local func, loadErr = loadstring(result)
+        if func then
+            return func()
+        else
+            warn("Loadstring error:", loadErr)
+            return nil
+        end
     else
         warn("Failed to load:", url, result)
         return nil
@@ -19,8 +26,10 @@ local Gunmod = SafeLoad(baseUrl .. "Gunmod.lua") or {}
 local Aimbot = SafeLoad(baseUrl .. "Aimbot.lua") or {}
 
 local UI = SafeLoad(baseUrl .. "UI.lua")
-if UI then
+if type(UI) == "function" then
     UI(Config, ESP, Aimbot, Gunmod)
+else
+    warn("UI.lua did not return a valid function")
 end
 
 if ESP.Initialize then ESP.Initialize() end
