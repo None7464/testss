@@ -1,14 +1,30 @@
 local baseUrl = "https://raw.githubusercontent.com/None7464/testss/main/skibidi/"
 
-local Config = loadstring(game:HttpGet(baseUrl .. "Config.lua"))()
-local Utilities = loadstring(game:HttpGet(baseUrl .. "Utilities.lua"))()
-local ESP = loadstring(game:HttpGet(baseUrl .. "ESP/ESP.lua"))()(Config, Utilities)
-local Gunmod = loadstring(game:HttpGet(baseUrl .. "Gunmod.lua"))()
-local Aimbot = loadstring(game:HttpGet(baseUrl .. "Aimbot.lua"))()
-local UI = loadstring(game:HttpGet(baseUrl .. "UI.lua"))()(Config, ESP, Aimbot, Gunmod)
+local function SafeLoad(url)
+    local success, result = pcall(function()
+        return game:HttpGet(url)
+    end)
+    if success then
+        return loadstring(result)()
+    else
+        warn("Failed to load:", url, result)
+        return nil
+    end
+end
 
-ESP.Initialize()
-Aimbot.Initialize()
+local Config = SafeLoad(baseUrl .. "Config.lua") or {}
+local Utilities = SafeLoad(baseUrl .. "Utilities.lua") or {}
+local ESP = SafeLoad(baseUrl .. "ESP/ESP.lua") or function() return {} end
+local Gunmod = SafeLoad(baseUrl .. "Gunmod.lua") or {}
+local Aimbot = SafeLoad(baseUrl .. "Aimbot.lua") or {}
+
+local UI = SafeLoad(baseUrl .. "UI.lua")
+if UI then
+    UI(Config, ESP, Aimbot, Gunmod)
+end
+
+if ESP.Initialize then ESP.Initialize() end
+if Aimbot.Initialize then Aimbot.Initialize() end
 
 local function ModifyPrompts()
     for _, v in ipairs(game:GetService("Workspace"):GetDescendants()) do
@@ -19,5 +35,4 @@ local function ModifyPrompts()
 end
 
 ModifyPrompts()
-
 print("Railed Script Loaded!")
