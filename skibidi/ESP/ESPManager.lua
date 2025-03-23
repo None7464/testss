@@ -105,38 +105,46 @@ return function(Config, Utilities, ESPObject, ESPConfig)
         local lastUpdate = 0
         ESPManager.Connection = RunService.Heartbeat:Connect(function()
             local currentTime = tick()
-            if currentTime - lastUpdate >= ESPConfig.UpdateInterval then
+            if currentTime - lastUpdate >= (ESPConfig.UpdateInterval or 0.1) then -- Ensure UpdateInterval is never nil
                 ESPManager.Update()
                 lastUpdate = currentTime
             end
         end)
-        ESPManager.Update()
         
+        ESPManager.Update()
+    
         -- Hide vanilla UI initially if ESP is enabled
         if Config.Enabled then
             hideVanillaUI()
         end
         print("ESP Initialized - Enabled:", Config.Enabled)
-    end
+    end    
     
     function ESPManager.Cleanup()
         for _, esp in pairs(ESPManager.Items) do
-            esp:Destroy()
+            if esp and typeof(esp.Destroy) == "function" then
+                esp:Destroy()
+            end
         end
+        
         for _, esp in pairs(ESPManager.Humanoids) do
-            esp:Destroy()
+            if esp and typeof(esp.Destroy) == "function" then
+                esp:Destroy()
+            end
         end
+        
         ESPManager.Items = {}
         ESPManager.Humanoids = {}
+    
         if ESPManager.Connection then
             ESPManager.Connection:Disconnect()
             ESPManager.Connection = nil
         end
-        
+    
         -- Restore vanilla UI when cleaning up
         restoreVanillaUI()
         print("ESP Cleaned Up - Restored Vanilla UI")
-    end
+    end    
     
     -- Handle ESP enable/disable with reset and debug
     function ESPManager.SetEnabled(enabled)
