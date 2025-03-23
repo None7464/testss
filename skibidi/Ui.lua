@@ -18,8 +18,8 @@ return function(Config, ESP, Aimbot, Gunmod)
     UI:AddSlider("Max Distance", 100, 2000, Config.MaxDistance, function(value)
         Config.MaxDistance = value
     end)
-
-    UI:AddLabel("Aimbot: Press F For PC")
+    
+    UI:AddLabel("Aimbot: Press F to Enable or Disable! (PC)")
 
     UI:AddButton("Aimbot Button", function()
         Aimbot.AddMobileAimbotButton()
@@ -28,9 +28,61 @@ return function(Config, ESP, Aimbot, Gunmod)
     local UI1 = library:CreateWindow({ text = "Skibidi" })
 
     UI1:AddButton("Instant Win", function()
-        -- Next Update make a timer so when they can press the lever
-        game.Players.LocalPlayer.Character:PivotTo(CFrame.new(-346, -69, -49060))
+        local Players = game:GetService("Players")
+        local RunService = game:GetService("RunService")
+        local StarterGui = game:GetService("StarterGui")
+        
+        local Player = Players.LocalPlayer
+        local Character = Player.Character or Player.CharacterAdded:Wait()
+        local Humanoid = Character:FindFirstChildOfClass("Humanoid")
+        local RootPart = Character:FindFirstChild("HumanoidRootPart") or Character:FindFirstChild("Head")
+    
+        if not RootPart or not Humanoid then
+            warn("Could not find essential character parts!")
+            return
+        end
+    
+        -- Disable movement and anchor player
+        Humanoid.PlatformStand = true
+        RootPart.Anchored = true
+        
+        -- If already moving, stop the previous loop
+        if CFloop then CFloop:Disconnect() end
+    
+        -- Movement settings
+        local CFspeed = 50
+        CFloop = RunService.Heartbeat:Connect(function(deltaTime)
+            local moveDirection = Humanoid.MoveDirection * (CFspeed * deltaTime)
+            RootPart.CFrame = RootPart.CFrame * CFrame.new(moveDirection)
+        end)
+
+        Character:PivotTo(CFrame.new(-346, -69, -49060))
+    
+        -- Notifications
+        local function notify(msg, duration)
+            StarterGui:SetCore("SendNotification", {
+                Title = "Instant Win",
+                Text = msg,
+                Duration = duration or 3
+            })
+        end
+    
+        notify("You have 20 seconds left until you go back to the train.", 5)
+        wait(10)
+        notify("10 seconds left!", 5)
+        wait(10)
+        notify("Returning to the train...", 3)
+        wait(3)
+    
+        if CFloop then
+            CFloop:Disconnect()
+            CFloop = nil
+        end
+    
+        Humanoid.PlatformStand = false
+        RootPart.Anchored = false
     end)
+    
     
     UI1:AddToggle("FullBrightness", function(state)
         if state then
@@ -60,23 +112,7 @@ return function(Config, ESP, Aimbot, Gunmod)
         Gunmod.ToggleGunMods()
     end)
 
-    local timeFuelLabel = UI1:AddLabel("Loading...")
-    
-    local function updateLabel()
-        while true do
-            local time = workspace.Train.TrainControls.TimeDial.SurfaceGui.TextLabel.Text -- Time
-            local fuel = workspace.Train.Fuel.Value -- Fuel Value
-            
-
-            timeFuelLabel.Text = "Time: " .. time .. " | Fuel: " .. fuel
-            
-            wait(0.1)
-        end
-    end
-
-    task.spawn(updateLabel)
-
-    UI1:AddLabel("Auto Farm Bonds Soon!")
+    UI:AddLabel("Auto Farm Bonds Soon!")
 
     return UI
 end
