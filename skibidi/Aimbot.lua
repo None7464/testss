@@ -160,13 +160,13 @@ end
 
 function Aimbot.Initialize()
     -- Toggle aimbot with 'Y' key
-    UserInputService.InputBegan:Connect(function(input, gameProcessed)
-        if gameProcessed then return end
-
+    UserInputService.InputBegan:Connect(function(input)
+        print("Key Pressed:", input.KeyCode) -- Debugging
+    
         if input.KeyCode == Aimbot.Settings.ToggleKey then
             Aimbot.Enabled = not Aimbot.Enabled
             notify(Aimbot.Enabled and "Aimbot Activated" or "Aimbot Deactivated")
-
+    
             if Aimbot.Enabled then
                 if not Aimbot.RenderConnection then
                     Aimbot.RenderConnection = RunService.RenderStepped:Connect(aimAtTarget)
@@ -180,6 +180,7 @@ function Aimbot.Initialize()
             end
         end
     end)
+
 end
 
 return Aimbot
