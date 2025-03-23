@@ -524,60 +524,79 @@ function library:CreateWindow(options)
         }
     end
 
-    function CreateSlider(frame, slider, min, max, callback)
-        local UserInputService = game:GetService("UserInputService")
+    function window:AddSlider(text, min, max, default, callback)
+        self.count = self.count + 1
+        callback = callback or function() end
+    
+        local sliderFrame = library:Create("Frame", {
+            Size = UDim2.new(1, -10, 0, 30),
+            BackgroundTransparency = 1,
+            Parent = self.container,
+            LayoutOrder = self.count
+        })
+    
+        local label = library:Create("TextLabel", {
+            Text = text .. ": " .. tostring(default),
+            Size = UDim2.new(1, -10, 0, 20),
+            BackgroundTransparency = 1,
+            TextColor3 = Color3.fromRGB(255, 255, 255),
+            TextXAlignment = Enum.TextXAlignment.Left,
+            TextSize = 16,
+            Font = Enum.Font.SourceSans,
+            Parent = sliderFrame
+        })
+    
+        local sliderBar = library:Create("Frame", {
+            Size = UDim2.new(1, -10, 0, 8),
+            Position = UDim2.new(0, 5, 1, -10),
+            BackgroundColor3 = Color3.fromRGB(60, 60, 60),
+            BorderSizePixel = 0,
+            Parent = sliderFrame
+        })
+    
+        local sliderButton = library:Create("Frame", {
+            Size = UDim2.new(0, 12, 0, 12),
+            Position = UDim2.new((default - min) / (max - min), -6, 0.5, -6),
+            BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+            BorderSizePixel = 0,
+            Parent = sliderBar
+        })
+    
+        local UICorner = Instance.new("UICorner", sliderButton)
+        UICorner.CornerRadius = UDim.new(1, 0) -- Makes it round
+    
         local dragging = false
-        local dragInput
-        local sliderStart
-        local sliderSize = frame.AbsoluteSize.X
-    
-        slider.Size = UDim2.new(0, 20, 0, 20)
-        slider.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-        slider.BorderSizePixel = 0
-        slider.BackgroundTransparency = 0
-        slider.AnchorPoint = Vector2.new(0.5, 0.5)
-        slider.Position = UDim2.new(0, 0, 0.5, 0)
-        
-        local UICorner = Instance.new("UICorner", slider)
-        UICorner.CornerRadius = UDim.new(1, 0) 
-    
         local function update(input)
-            local delta = input.Position.X - sliderStart
-            local newPosition = math.clamp(delta / sliderSize, 0, 1)
-            local newValue = math.floor((newPosition * (max - min)) + min)
+            local sizeX = sliderBar.AbsoluteSize.X
+            local deltaX = math.clamp((input.Position.X - sliderBar.AbsolutePosition.X) / sizeX, 0, 1)
+            local newValue = math.floor((deltaX * (max - min)) + min)
     
-            slider.Position = UDim2.new(newPosition, 0, 0.5, 0)
-    
-            if callback then
-                callback(newValue)
-            end
+            sliderButton.Position = UDim2.new(deltaX, -6, 0.5, -6)
+            label.Text = text .. ": " .. tostring(newValue)
+            callback(newValue)
         end
     
-        frame.InputBegan:Connect(function(input)
+        sliderButton.InputBegan:Connect(function(input)
             if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
                 dragging = true
-                sliderStart = input.Position.X - slider.AbsolutePosition.X
             end
         end)
     
-        frame.InputChanged:Connect(function(input)
+        sliderButton.InputChanged:Connect(function(input)
             if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
-                dragInput = input
+                if dragging then update(input) end
             end
         end)
     
-        UserInputService.InputChanged:Connect(function(input)
-            if input == dragInput and dragging then
-                update(input)
-            end
-        end)
-    
-        UserInputService.InputEnded:Connect(function(input)
+        game:GetService("UserInputService").InputEnded:Connect(function(input)
             if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
                 dragging = false
             end
         end)
-    end    
+    
+        self:Resize()
+        return sliderButton
+    end
 
     return window
 end
