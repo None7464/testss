@@ -9,7 +9,7 @@ local Aimbot = {
     Target = nil,    -- The NPC currently being aimed at
     RenderConnection = nil,
     Settings = {
-        ToggleKey = Enum.KeyCode.Y -- Press 'Y' to toggle aimbot
+        ToggleKey = Enum.KeyCode.Q -- Press 'Y' to toggle aimbot
     }
 }
 
