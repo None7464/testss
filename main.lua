@@ -1,3 +1,5 @@
+-- Credits on the actual script https://github.com/LxckStxp i just updated it and made some functions and available for mobile users
+
 local baseUrl = "https://raw.githubusercontent.com/None7464/testss/main/skibidi/"
 
 local function SafeLoad(url)
