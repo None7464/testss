@@ -240,7 +240,9 @@ function library:CreateWindow(options)
     
     function window:AddToggle(text, callback)
         self.count = self.count + 1
-        callback = callback or function() end -- Ensure callback is a function
+        if typeof(callback) ~= "function" then
+            callback = function() end -- Ensure it's always a function
+        end
     
         local label = library:Create("TextLabel", {
             Text = text,
@@ -248,7 +250,7 @@ function library:CreateWindow(options)
             BackgroundTransparency = 1,
             TextColor3 = Color3.fromRGB(255, 255, 255),
             TextXAlignment = Enum.TextXAlignment.Left,
-            LayoutOrder = self.count, -- Fixed: Should use self.count, not self.Count
+            LayoutOrder = self.count,
             TextSize = 16,
             Font = Enum.Font.SourceSans,
             Parent = self.container
@@ -270,13 +272,17 @@ function library:CreateWindow(options)
             button.TextColor3 = self.toggles[text] and Color3.fromRGB(0, 255, 140) or Color3.fromRGB(255, 25, 25)
             button.Text = self.toggles[text] and "ON" or "OFF"
     
-            callback(self.toggles[text]) -- Now safe because callback is always a function
+            print("Callback Type:", typeof(callback)) -- Debugging
+            if typeof(callback) == "function" then
+                callback(self.toggles[text])
+            else
+                warn("⚠️ Callback is not a function! It is:", callback)
+            end
         end)
     
         self:Resize()
         return button
     end
-
 
     function window:AddBox(text, callback)
         self.count = self.count + 1
