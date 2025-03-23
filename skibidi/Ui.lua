@@ -19,7 +19,7 @@ return function(Config, ESP, Aimbot, Gunmod)
         Config.MaxDistance = value
     end)
     
-    UI:AddLabel("Aimbot: Press F to Enable or Disable! (PC)")
+    UI:AddLabel("Aimbot: Press F to Enable (PC)")
 
     UI:AddButton("Aimbot Button", function()
         Aimbot.AddMobileAimbotButton()
