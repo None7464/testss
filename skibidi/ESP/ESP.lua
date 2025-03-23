@@ -1,7 +1,7 @@
 return function(Config, Utilities)
-    local ESPConfig = loadstring(game:HttpGet(" "))()
-    local ESPObject = loadstring(game:HttpGet(" "))()(Config, Utilities, ESPConfig)
-    local ESPManager = loadstring(game:HttpGet(" "))()(Config, Utilities, ESPObject, ESPConfig)
+    local ESPConfig = loadstring(game:HttpGet("https://raw.githubusercontent.com/None7464/testss/main/skibidi/ESP/ESPConfig.lua"))()
+    local ESPObject = loadstring(game:HttpGet("https://raw.githubusercontent.com/None7464/testss/main/skibidi/ESP/ESPManager.lua"))()(Config, Utilities, ESPConfig)
+    local ESPManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/None7464/testss/refs/heads/main/skibidi/ESP/ESPObject.lua"))()(Config, Utilities, ESPObject, ESPConfig)
     
     local ESP = {}
     
