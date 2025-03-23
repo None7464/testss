@@ -240,43 +240,43 @@ function library:CreateWindow(options)
     
     function window:AddToggle(text, callback)
         self.count = self.count + 1
-
-        callback = callback or function() end
+        callback = callback or function() end -- Ensure callback is a function
+    
         local label = library:Create("TextLabel", {
-            Text =  text,
-            Size = UDim2.new(1, -10, 0, 20);
-            --Position = UDim2.new(0, 5, 0, ((20 * self.count) - 20) + 5),
-            BackgroundTransparency = 1;
-            TextColor3 = Color3.fromRGB(255, 255, 255);
-            TextXAlignment = Enum.TextXAlignment.Left;
-            LayoutOrder = self.Count;
+            Text = text,
+            Size = UDim2.new(1, -10, 0, 20),
+            BackgroundTransparency = 1,
+            TextColor3 = Color3.fromRGB(255, 255, 255),
+            TextXAlignment = Enum.TextXAlignment.Left,
+            LayoutOrder = self.count, -- Fixed: Should use self.count, not self.Count
             TextSize = 16,
             Font = Enum.Font.SourceSans,
-            Parent = self.container;
+            Parent = self.container
         })
-
+    
         local button = library:Create("TextButton", {
             Text = "OFF",
             TextColor3 = Color3.fromRGB(255, 25, 25),
-            BackgroundTransparency = 1;
+            BackgroundTransparency = 1,
             Position = UDim2.new(1, -25, 0, 0),
             Size = UDim2.new(0, 25, 1, 0),
             TextSize = 17,
             Font = Enum.Font.SourceSansSemibold,
-            Parent = label;
+            Parent = label
         })
-
-        button.MouseButton1Click:connect(function()
-            self.toggles[text] = (not self.toggles[text])
-            button.TextColor3 = (self.toggles[text] and Color3.fromRGB(0, 255, 140) or Color3.fromRGB(255, 25, 25))
-            button.Text =(self.toggles[text] and "ON" or "OFF")
-
-            callback(self.toggles[text])
+    
+        button.MouseButton1Click:Connect(function()
+            self.toggles[text] = not self.toggles[text] -- Toggle the value
+            button.TextColor3 = self.toggles[text] and Color3.fromRGB(0, 255, 140) or Color3.fromRGB(255, 25, 25)
+            button.Text = self.toggles[text] and "ON" or "OFF"
+    
+            callback(self.toggles[text]) -- Now safe because callback is always a function
         end)
-
+    
         self:Resize()
         return button
     end
+
 
     function window:AddBox(text, callback)
         self.count = self.count + 1
