@@ -17,7 +17,7 @@ local Config = {
         Gold = Color3.fromRGB(255, 215, 0),     -- Yellow for gold (high value)
         Silver = Color3.fromRGB(192, 192, 192), -- Silver for silver (high value)
         Rare = Color3.fromRGB(160, 32, 240),     -- Purple for rare items (Holy Water, Crucifix)
-        Important = Color3.fromRGB(0, 0, 0) -- Bonds LOL
+        Important = Color3.fromRGB(255, 223, 0) -- Bright gold (BONDS BONDS BONDS BONDS!!!!!!!!!!)
     }
 }
 
