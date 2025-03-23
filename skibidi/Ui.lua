@@ -19,13 +19,28 @@ return function(Config, ESP, Aimbot, Gunmod)
         Config.MaxDistance = value
     end)
     
-    UI:AddLabel("Aimbot: Press F to Enable (PC)")
+    UI:AddLabel("Aimbot: Press F to Enable or Disable! (PC)")
 
     UI:AddButton("Aimbot Button", function()
         Aimbot.AddMobileAimbotButton()
     end)
 
     local UI1 = library:CreateWindow({ text = "Skibidi" })
+
+    local timeFuelLabel = UI1:AddLabel("Loading...")
+
+    local function updateLabel()
+        while true do
+            local time = workspace.Train.TrainControls.TimeDial.SurfaceGui.TextLabel.Text
+            local fuel = workspace.Train.Fuel.Value
+            
+            timeFuelLabel.Text = "Time: " .. time .. " | Fuel: " .. fuel
+            
+            wait(1)
+        end
+    end
+
+    task.spawn(updateLabel)
 
     UI1:AddButton("Instant Win", function()
         local Players = game:GetService("Players")
@@ -41,7 +56,14 @@ return function(Config, ESP, Aimbot, Gunmod)
     
         local Character = Player.Character -- Re-fetch the character after waiting
         local Head = Character:WaitForChild("Head")
-    
+
+        local function notify(msg, duration)
+            StarterGui:SetCore("SendNotification", {
+                Title = "Instant Win",
+                Text = msg,
+                Duration = duration or 3
+            })
+        end
         CFspeed = 50
         Character:FindFirstChildOfClass('Humanoid').PlatformStand = true
         Head.Anchored = true
@@ -104,10 +126,7 @@ return function(Config, ESP, Aimbot, Gunmod)
         Gunmod.ToggleGunMods()
     end)
 
-    UI1:AddLabel("Auto Farm Bonds Soon!")
-    
-    UI1:AddButton("💀 Kill UI 💀", function()
-        library:DestroyUI()
-    end)
+    UI:AddLabel("Auto Farm Bonds Soon!")
+    print("Config.Enabled Type:", typeof(Config.Enabled), "Value:", Config.Enabled)
     return UI
 end
