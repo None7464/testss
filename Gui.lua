@@ -238,11 +238,16 @@ function library:CreateWindow(options)
         end
     end
     
-    function window:AddToggle(text, callback)
+    function window:AddToggle(text, callback, defaultState)
         self.count = self.count + 1
         if typeof(callback) ~= "function" then
-            callback = function() end -- Ensure it's always a function
+            warn("⚠️ Callback is not a function! Fixing it.")
+            callback = function() end
         end
+    
+        print("Text:", text)
+        print("Callback Type:", typeof(callback))
+        print("Default State Type:", typeof(defaultState), "Value:", defaultState)
     
         local label = library:Create("TextLabel", {
             Text = text,
@@ -257,8 +262,8 @@ function library:CreateWindow(options)
         })
     
         local button = library:Create("TextButton", {
-            Text = "OFF",
-            TextColor3 = Color3.fromRGB(255, 25, 25),
+            Text = defaultState and "ON" or "OFF",
+            TextColor3 = defaultState and Color3.fromRGB(0, 255, 140) or Color3.fromRGB(255, 25, 25),
             BackgroundTransparency = 1,
             Position = UDim2.new(1, -25, 0, 0),
             Size = UDim2.new(0, 25, 1, 0),
@@ -267,17 +272,14 @@ function library:CreateWindow(options)
             Parent = label
         })
     
+        self.toggles[text] = defaultState
+    
         button.MouseButton1Click:Connect(function()
             self.toggles[text] = not self.toggles[text] -- Toggle the value
-            button.TextColor3 = self.toggles[text] and Color3.fromRGB(0, 255, 140) or Color3.fromRGB(255, 25, 25)
             button.Text = self.toggles[text] and "ON" or "OFF"
+            button.TextColor3 = self.toggles[text] and Color3.fromRGB(0, 255, 140) or Color3.fromRGB(255, 25, 25)
     
-            print("Callback Type:", typeof(callback)) -- Debugging
-            if typeof(callback) == "function" then
-                callback(self.toggles[text])
-            else
-                warn("⚠️ Callback is not a function! It is:", callback)
-            end
+            callback(self.toggles[text])
         end)
     
         self:Resize()
