@@ -9,7 +9,7 @@ local Aimbot = {
     Target = nil,    -- The NPC currently being aimed at
     RenderConnection = nil,
     Settings = {
-        ToggleKey = Enum.KeyCode.Q -- Press 'Y' to toggle aimbot
+        ToggleKey = Enum.KeyCode.Y -- Press 'Y' to toggle aimbot
     }
 }
 
@@ -93,19 +93,6 @@ end
 function Aimbot.AddMobileAimbotButton()
     local UserInputService = game:GetService("UserInputService")
 
-    if not UserInputService.TouchEnabled or UserInputService.KeyboardEnabled then
-        if game:GetService("StarterGui"):FindFirstChild("SetCore") then
-            game:GetService("StarterGui"):SetCore("SendNotification", {
-                Title = "Aimbot",
-                Text = "This function only works on mobile devices!",
-                Duration = 3
-            })
-        else
-            warn("This function only works on mobile devices!")
-        end
-        return
-    end
-
     local playerGui = game.Players.LocalPlayer:FindFirstChild("PlayerGui")
 
     if not playerGui then
@@ -159,14 +146,13 @@ else
 end
 
 function Aimbot.Initialize()
-    -- Toggle aimbot with 'Y' key
-    UserInputService.InputBegan:Connect(function(input)
-        print("Key Pressed:", input.KeyCode) -- Debugging
-    
+    UserInputService.InputBegan:Connect(function(input, gameProcessed)
+        if gameProcessed then return end
+
         if input.KeyCode == Aimbot.Settings.ToggleKey then
             Aimbot.Enabled = not Aimbot.Enabled
             notify(Aimbot.Enabled and "Aimbot Activated" or "Aimbot Deactivated")
-    
+
             if Aimbot.Enabled then
                 if not Aimbot.RenderConnection then
                     Aimbot.RenderConnection = RunService.RenderStepped:Connect(aimAtTarget)
@@ -180,7 +166,6 @@ function Aimbot.Initialize()
             end
         end
     end)
-
 end
 
 return Aimbot
