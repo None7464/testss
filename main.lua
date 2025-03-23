@@ -1,5 +1,6 @@
 local baseUrl = "https://raw.githubusercontent.com/None7464/testss/main/skibidi/"
 
+print("Loading....")
 local function SafeLoad(url)
     local success, result = pcall(function()
         return game:HttpGet(url)
