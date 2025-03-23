@@ -247,7 +247,13 @@ function library:CreateWindow(options)
             callback = function() end
         end
     
-        print("🛠 Initializing Toggle:", text, "| Callback Type:", typeof(callback), "| Default State:", defaultState)
+        -- Ensure defaultState is boolean (fixing the nil issue)
+        if typeof(defaultState) ~= "boolean" then
+            warn("⚠️ Default state is NIL! Setting it to FALSE by default.")
+            defaultState = false
+        end
+    
+        print("🛠 Initializing Toggle:", text, "| Callback Type:", typeof(callback), "| Default State Type:", typeof(defaultState), "| Value:", defaultState)
     
         local label = library:Create("TextLabel", {
             Text = text,
@@ -272,7 +278,7 @@ function library:CreateWindow(options)
             Parent = label
         })
     
-        -- Ensure toggle state is stored correctly
+        -- Store toggle state correctly
         self.toggles[text] = defaultState
     
         button.MouseButton1Click:Connect(function()
