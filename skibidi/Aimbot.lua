@@ -5,15 +5,16 @@ local Camera = workspace.CurrentCamera
 local Player = Players.LocalPlayer
 
 local Aimbot = {
-    Enabled = false, -- Toggle with 'Y' key
-    Target = nil,    -- The NPC currently being aimed at
-    RenderConnection = nil,
+    Enabled = false, -- Controlled by UI
+    Aiming = false, -- Tracks right-click state
+    Target = nil,   -- Current NPC target
+    RenderConnection = nil, -- Store RenderStepped connection
     Settings = {
-        ToggleKey = Enum.KeyCode.Y -- Press 'Y' to toggle aimbot
+        AimKey = Enum.UserInputType.MouseButton2, -- RightClick
     }
 }
 
--- Utility function to get NPCs (excluding players)
+-- Utility function to get NPC models (non-player humanoids)
 local function getNPCs()
     local npcs = {}
     for _, humanoid in pairs(workspace:GetDescendants()) do
@@ -27,12 +28,12 @@ local function getNPCs()
     return npcs
 end
 
--- Find the closest NPC to the crosshair
+-- Find closest NPC to crosshair (excluding players)
 local function findClosestNPC()
     local mouse = UserInputService:GetMouseLocation()
     local ray = Camera:ScreenPointToRay(mouse.X, mouse.Y)
     local raycastParams = RaycastParams.new()
-    raycastParams.FilterDescendantsInstances = {Player.Character, unpack(getNPCs())}
+    raycastParams.FilterDescendantsInstances = {Player.Character}
     raycastParams.FilterType = Enum.RaycastFilterType.Blacklist
 
     local closestNPC, closestDistance = nil, math.huge
@@ -50,7 +51,7 @@ local function findClosestNPC()
         end
     end
 
-    -- Fallback: Check all NPCs manually
+    -- Fallback: Check all NPCs for closest to crosshair
     for _, npc in pairs(getNPCs()) do
         local head = npc:FindFirstChild("Head") or npc.PrimaryPart
         if head then
@@ -68,127 +69,111 @@ local function findClosestNPC()
     return closestNPC
 end
 
-local function smoothAim(targetPos)
-    local currentPos = Camera.CFrame.Position
-    local direction = (targetPos - currentPos).Unit
-    local newPos = currentPos + direction * 0.1  -- Adjust this for a smoother aim
-    Camera.CFrame = CFrame.lookAt(currentPos, newPos)
-end
-
+-- Aim at target’s head instantly
 local function aimAtTarget()
-    if not Aimbot.Enabled then return end
-    local newTarget = findClosestNPC()
-
-    if newTarget and newTarget ~= Aimbot.Target then
-        Aimbot.Target = newTarget
-    end
-
-    if Aimbot.Target and Aimbot.Target.PrimaryPart then
-        local head = Aimbot.Target:FindFirstChild("Head") or Aimbot.Target.PrimaryPart
-        if head then
-            smoothAim(head.Position)
-        end
-    end
+    if not Aimbot.Target or not Aimbot.Target.PrimaryPart then return end
+    
+    local head = Aimbot.Target:FindFirstChild("Head") or Aimbot.Target.PrimaryPart
+    if not head then return end
+    
+    local targetPos = head.Position -- Direct head targeting, no offset
+    local lookVector = (targetPos - Camera.CFrame.Position).Unit
+    local newCFrame = CFrame.new(Camera.CFrame.Position, Camera.CFrame.Position + lookVector)
+    
+    -- Instant aim (no smoothing)
+    Camera.CFrame = newCFrame
 end
 
 function Aimbot.AddMobileAimbotButton()
     local UserInputService = game:GetService("UserInputService")
-    local Players = game:GetService("Players")
-    local StarterGui = game:GetService("StarterGui")
-    local LocalPlayer = Players.LocalPlayer
 
-    -- Check if the device is NOT a mobile device
-    if not UserInputService.TouchEnabled then
-        StarterGui:SetCore("SendNotification", {
-            Title = "Aimbot",
-            Text = "This function only works on mobile devices!",
-            Duration = 3
-        })
+    if not UserInputService.TouchEnabled or UserInputService.KeyboardEnabled then
+        if game:GetService("StarterGui"):FindFirstChild("SetCore") then
+            game:GetService("StarterGui"):SetCore("SendNotification", {
+                Title = "Aimbot",
+                Text = "This function only works on mobile devices!",
+                Duration = 3
+            })
+        else
+            warn("This function only works on mobile devices!")
+        end
         return
     end
 
-    -- Ensure PlayerGui exists
-    local playerGui = LocalPlayer:FindFirstChildOfClass("PlayerGui")
+    local playerGui = game.Players.LocalPlayer:FindFirstChild("PlayerGui")
+
     if not playerGui then
         warn("PlayerGui not found!")
         return
     end
 
-    -- Create the ScreenGui
     local screenGui = Instance.new("ScreenGui")
     screenGui.Name = "AimbotUI"
     screenGui.ResetOnSpawn = false
     screenGui.Parent = playerGui
 
-    -- Create the Aimbot Button
     local aimbotButton = Instance.new("TextButton")
     aimbotButton.Size = UDim2.new(0, 80, 0, 80)
     aimbotButton.Position = UDim2.new(0.85, 0, 0.8, 0)
     aimbotButton.BackgroundColor3 = Color3.new(0, 0, 0)
     aimbotButton.BackgroundTransparency = 0.3
-    aimbotButton.Text = "Aimbot OFF"
+    aimbotButton.Text = "Hold to Aim"
     aimbotButton.TextColor3 = Color3.new(1, 1, 1)
     aimbotButton.Font = Enum.Font.SourceSansBold
     aimbotButton.TextSize = 16
     aimbotButton.Parent = screenGui
 
-    -- UI Corner for round edges
     local uicorner = Instance.new("UICorner")
     uicorner.CornerRadius = UDim.new(1, 0)
     uicorner.Parent = aimbotButton
 
-    -- UI Stroke for border
     local uiStroke = Instance.new("UIStroke")
     uiStroke.Thickness = 2
     uiStroke.Color = Color3.new(1, 1, 1)
     uiStroke.Parent = aimbotButton
 
-    -- Toggle Aimbot On Button Click
-    aimbotButton.MouseButton1Click:Connect(function()
-        Aimbot.Enabled = not Aimbot.Enabled
-        aimbotButton.Text = Aimbot.Enabled and "Aimbot ON" or "Aimbot OFF"
+    -- Hold to aim
+    aimbotButton.MouseButton1Down:Connect(function()
+        Aimbot.Aiming = true
+        Aimbot.Target = findClosestNPC()
+        if Aimbot.Target then
+            Aimbot.RenderConnection = game:GetService("RunService").RenderStepped:Connect(aimAtTarget)
+        end
+    end)
 
-        StarterGui:SetCore("SendNotification", {
-            Title = "Aimbot",
-            Text = Aimbot.Enabled and "Aimbot Activated" or "Aimbot Deactivated",
-            Duration = 2
-        })
+    -- Release to stop aiming
+    aimbotButton.MouseButton1Up:Connect(function()
+        Aimbot.Aiming = false
+        Aimbot.Target = nil
+        if Aimbot.RenderConnection then
+            Aimbot.RenderConnection:Disconnect()
+            Aimbot.RenderConnection = nil
+        end
     end)
 end
 
 
-local function notify(message)
-    game:GetService("StarterGui"):SetCore("SendNotification", {
-        Title = "Skibdi",
-        Text = message,
-        Duration = 2
-    })
-end
-
-if Aimbot.Enabled then
-    notify("Aimbot Enabled")
-else
-    notify("Aimbot Disabled")
-end
-
+-- Handle input for aimbot
 function Aimbot.Initialize()
     UserInputService.InputBegan:Connect(function(input, gameProcessed)
-        if gameProcessed then return end
-
-        if input.KeyCode == Aimbot.Settings.ToggleKey then
-            Aimbot.Enabled = not Aimbot.Enabled
-            notify(Aimbot.Enabled and "Aimbot Activated" or "Aimbot Deactivated")
-
-            if Aimbot.Enabled then
-                if not Aimbot.RenderConnection then
-                    Aimbot.RenderConnection = RunService.RenderStepped:Connect(aimAtTarget)
-                end
-            else
-                if Aimbot.RenderConnection then
-                    Aimbot.RenderConnection:Disconnect()
-                    Aimbot.RenderConnection = nil
-                end
-                Aimbot.Target = nil
+        if gameProcessed or not Aimbot.Enabled then return end
+        if input.UserInputType == Aimbot.Settings.AimKey then
+            Aimbot.Aiming = true
+            Aimbot.Target = findClosestNPC()
+            if Aimbot.Target then
+                Aimbot.RenderConnection = RunService.RenderStepped:Connect(aimAtTarget)
+            end
+        end
+    end)
+    
+    UserInputService.InputEnded:Connect(function(input, gameProcessed)
+        if gameProcessed or not Aimbot.Enabled then return end
+        if input.UserInputType == Aimbot.Settings.AimKey then
+            Aimbot.Aiming = false
+            Aimbot.Target = nil
+            if Aimbot.RenderConnection then
+                Aimbot.RenderConnection:Disconnect()
+                Aimbot.RenderConnection = nil
             end
         end
     end)
