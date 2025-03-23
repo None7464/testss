@@ -32,9 +32,6 @@ else
     warn("UI failed to load!")
 end
 
-if ESP.Initialize then ESP.Initialize() end
-if Aimbot.Initialize then Aimbot.Initialize() end
-
 local function ModifyPrompts()
     for _, v in ipairs(game:GetService("Workspace"):GetDescendants()) do
         if v:IsA("ProximityPrompt") then
