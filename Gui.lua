@@ -240,14 +240,14 @@ function library:CreateWindow(options)
     
     function window:AddToggle(text, callback, defaultState)
         self.count = self.count + 1
+    
+        -- Ensure callback is a function
         if typeof(callback) ~= "function" then
-            warn("⚠️ Callback is not a function! Fixing it.")
+            warn("⚠️ Callback is NOT a function! Fixing it.")
             callback = function() end
         end
     
-        print("Text:", text)
-        print("Callback Type:", typeof(callback))
-        print("Default State Type:", typeof(defaultState), "Value:", defaultState)
+        print("🛠 Initializing Toggle:", text, "| Callback Type:", typeof(callback), "| Default State:", defaultState)
     
         local label = library:Create("TextLabel", {
             Text = text,
@@ -272,6 +272,7 @@ function library:CreateWindow(options)
             Parent = label
         })
     
+        -- Ensure toggle state is stored correctly
         self.toggles[text] = defaultState
     
         button.MouseButton1Click:Connect(function()
@@ -279,7 +280,14 @@ function library:CreateWindow(options)
             button.Text = self.toggles[text] and "ON" or "OFF"
             button.TextColor3 = self.toggles[text] and Color3.fromRGB(0, 255, 140) or Color3.fromRGB(255, 25, 25)
     
-            callback(self.toggles[text])
+            print("🔍 DEBUG: Callback type:", typeof(callback))
+            print("🔍 DEBUG: Toggle state:", self.toggles[text])
+    
+            if typeof(callback) == "function" then
+                callback(self.toggles[text]) -- Safe execution
+            else
+                warn("🚨 ERROR: Callback is NOT a function, skipping execution!")
+            end
         end)
     
         self:Resize()
