@@ -19,32 +19,16 @@ return function(Config, ESP, Aimbot, Gunmod)
         Config.MaxDistance = value
     end)
     
-    -- Aimbot Toggle (with safe access and debug)
-    local aimbotEnabled = (Aimbot and Aimbot.Enabled ~= nil) and Aimbot.Enabled or false
-    UI:AddToggle("Aimbot", aimbotEnabled, function(state)
-        if Aimbot and Aimbot.Enabled ~= nil then
-            Aimbot.Enabled = state
-            print("Aimbot toggled to:", state)
-        else
-            warn("Aimbot module not loaded or Enabled property missing")
-        end
-    end)
+    UI:AddLabel("Aimbot: Press F to Enable or Disable! (PC)")
 
     UI:AddButton("Aimbot Button", function()
         Aimbot.AddMobileAimbotButton()
     end)
 
-    UI:AddButton("Destroy Aimbot Button", function()
-        local virtualInputManager = game:GetService("VirtualInputManager")
-        task.wait(2)
-        virtualInputManager:SendKeyEvent(true, Enum.KeyCode.Home, false, game)
-        task.wait(0.1)
-        virtualInputManager:SendKeyEvent(false, Enum.KeyCode.Home, false, game)
-    end)
-
     local UI1 = library:CreateWindow({ text = "Skibidi" })
 
     UI1:AddButton("Instant Win", function()
+        -- Next Update make a timer so when they can press the lever
         game.Players.LocalPlayer.Character:PivotTo(CFrame.new(-346, -69, -49060))
     end)
     
@@ -75,6 +59,8 @@ return function(Config, ESP, Aimbot, Gunmod)
     UI1:AddButton("Turn On GunMode", function()
         Gunmod.ToggleGunMods()
     end)
+
+    UI:AddLabel("Auto Farm Bonds Soon!")
 
     return UI
 end
