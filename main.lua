@@ -25,15 +25,7 @@ local Utilities = SafeLoad(baseUrl .. "Utilities.lua")
 local ESP = SafeLoad(baseUrl .. "ESP/ESP.lua")(Config, Utilities)
 local Gunmod = SafeLoad(baseUrl .. "Gunmod.lua")
 local Aimbot = SafeLoad(baseUrl .. "Aimbot.lua")
-
-ESP.Initialize()
-
-local UI = SafeLoad(baseUrl .. "Ui.lua")(Config, ESP, Gunmod, Aimbot) -- Check if it loads correctly
-if UI then
-    UI(Config, ESP, Aimbot, Gunmod)
-else
-    warn("UI failed to load!")
-end
+local UI = SafeLoad(baseUrl .. "Ui.lua")(Config, ESP, Gunmod, Aimbot)
 
 local function ModifyPrompts()
     for _, v in ipairs(game:GetService("Workspace"):GetDescendants()) do
