@@ -237,43 +237,66 @@ function library:CreateWindow(options)
             self.background.Size = size
         end
     end
-
-    function window:AddToggle(text, callback)
+    
+    function window:AddToggle(text, callback, defaultState)
         self.count = self.count + 1
-
-        callback = callback or function() end
+    
+        -- Ensure callback is a function
+        if typeof(callback) ~= "function" then
+            warn("⚠️ Callback is NOT a function! Fixing it.")
+            callback = function() end
+        end
+    
+        -- Ensure defaultState is boolean (fixing the nil issue)
+        if typeof(defaultState) ~= "boolean" then
+            warn("⚠️ Default state is NIL! Setting it to FALSE by default.")
+            defaultState = false
+        end
+    
+        print("🛠 Initializing Toggle:", text, "| Callback Type:", typeof(callback), "| Default State Type:", typeof(defaultState), "| Value:", defaultState)
+    
         local label = library:Create("TextLabel", {
-            Text =  text,
-            Size = UDim2.new(1, -10, 0, 20);
-            --Position = UDim2.new(0, 5, 0, ((20 * self.count) - 20) + 5),
-            BackgroundTransparency = 1;
-            TextColor3 = Color3.fromRGB(255, 255, 255);
-            TextXAlignment = Enum.TextXAlignment.Left;
-            LayoutOrder = self.Count;
+            Text = text,
+            Size = UDim2.new(1, -10, 0, 20),
+            BackgroundTransparency = 1,
+            TextColor3 = Color3.fromRGB(255, 255, 255),
+            TextXAlignment = Enum.TextXAlignment.Left,
+            LayoutOrder = self.count,
             TextSize = 16,
             Font = Enum.Font.SourceSans,
-            Parent = self.container;
+            Parent = self.container
         })
-
+    
         local button = library:Create("TextButton", {
-            Text = "OFF",
-            TextColor3 = Color3.fromRGB(255, 25, 25),
-            BackgroundTransparency = 1;
+            Text = defaultState and "ON" or "OFF",
+            TextColor3 = defaultState and Color3.fromRGB(0, 255, 140) or Color3.fromRGB(255, 25, 25),
+            BackgroundTransparency = 1,
             Position = UDim2.new(1, -25, 0, 0),
             Size = UDim2.new(0, 25, 1, 0),
             TextSize = 17,
             Font = Enum.Font.SourceSansSemibold,
-            Parent = label;
+            Parent = label
         })
-
-        button.MouseButton1Click:connect(function()
-            self.toggles[text] = (not self.toggles[text])
-            button.TextColor3 = (self.toggles[text] and Color3.fromRGB(0, 255, 140) or Color3.fromRGB(255, 25, 25))
-            button.Text =(self.toggles[text] and "ON" or "OFF")
-
-            callback(self.toggles[text])
+    
+        -- Store toggle state correctly
+        self.toggles[text] = defaultState
+    
+        button.MouseButton1Click:Connect(function()
+            self.toggles[text] = not self.toggles[text] -- Toggle the value
+            button.Text = self.toggles[text] and "ON" or "OFF"
+            button.TextColor3 = self.toggles[text] and Color3.fromRGB(0, 255, 140) or Color3.fromRGB(255, 25, 25)
+    
+            print("🔍 DEBUG: Callback type:", typeof(callback))
+            print("🔍 DEBUG: Toggle state:", self.toggles[text])
+    
+            if typeof(callback) ~= "function" then
+                warn("🚨 Callback became invalid! Resetting to an empty function.")
+                callback = function() end -- Ensure it's always callable
+            end
+            
+            callback(self.toggles[text]) -- Now this can NEVER cause an error
         end)
-
+    
         self:Resize()
         return button
     end
@@ -297,7 +320,7 @@ function library:CreateWindow(options)
                 TextSize = 16,
                 Text = "",
                 Font = Enum.Font.SourceSans,
-                LayoutOrder = self.Count,
+                LayoutOrder = self.count,
                 BorderSizePixel = 0,
                 Parent = self.container
             }
@@ -348,8 +371,7 @@ function library:CreateWindow(options)
         button.MouseButton1Click:Connect(callback)
         self:Resize()
         return button
-    end
-    
+    end    
 
     function window:AddLabel(text)
         self.count = self.count + 1
@@ -374,7 +396,7 @@ function library:CreateWindow(options)
                 TextXAlignment = Enum.TextXAlignment.Left,
                 TextSize = 16,
                 Font = Enum.Font.SourceSans,
-                LayoutOrder = self.Count,
+                LayoutOrder = self.count,
                 Parent = self.container
             }
         )
@@ -402,7 +424,7 @@ function library:CreateWindow(options)
                 Text = default,
                 Font = Enum.Font.SourceSans,
                 BorderSizePixel = 0,
-                LayoutOrder = self.Count,
+                LayoutOrder = self.count,
                 Parent = self.container
             }
         )
@@ -524,61 +546,78 @@ function library:CreateWindow(options)
         }
     end
 
-    function CreateSlider(frame, slider, min, max, callback)
-        local UserInputService = game:GetService("UserInputService")
+    function window:AddSlider(text, min, max, default, callback)
+        self.count = self.count + 1
+        callback = callback or function() end
+    
+        local sliderFrame = library:Create("Frame", {
+            Size = UDim2.new(1, -10, 0, 30),
+            BackgroundTransparency = 1,
+            Parent = self.container,
+            LayoutOrder = self.count
+        })
+    
+        local label = library:Create("TextLabel", {
+            Text = text .. ": " .. tostring(default),
+            Size = UDim2.new(1, -10, 0, 20),
+            BackgroundTransparency = 1,
+            TextColor3 = Color3.fromRGB(255, 255, 255),
+            TextXAlignment = Enum.TextXAlignment.Left,
+            TextSize = 16,
+            Font = Enum.Font.SourceSans,
+            Parent = sliderFrame
+        })
+    
+        local sliderBar = library:Create("Frame", {
+            Size = UDim2.new(1, -10, 0, 8),
+            Position = UDim2.new(0, 5, 1, -10),
+            BackgroundColor3 = Color3.fromRGB(60, 60, 60),
+            BorderSizePixel = 0,
+            Parent = sliderFrame
+        })
+    
+        local sliderButton = library:Create("Frame", {
+            Size = UDim2.new(0, 12, 0, 12),
+            Position = UDim2.new((default - min) / (max - min), -6, 0.5, -6),
+            BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+            BorderSizePixel = 0,
+            Parent = sliderBar
+        })
+    
+        local UICorner = Instance.new("UICorner", sliderButton)
+        UICorner.CornerRadius = UDim.new(1, 0) -- Makes it round
+    
         local dragging = false
-        local dragInput
-        local sliderStart
-        local sliderSize = frame.AbsoluteSize.X
-    
-        -- Ensure the slider is a circular shape
-        slider.Size = UDim2.new(0, 20, 0, 20) -- Adjust as needed
-        slider.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-        slider.BorderSizePixel = 0
-        slider.BackgroundTransparency = 0
-        slider.AnchorPoint = Vector2.new(0.5, 0.5)
-        slider.Position = UDim2.new(0, 0, 0.5, 0)
-        
-        -- Make the slider a circle
-        local UICorner = Instance.new("UICorner", slider)
-        UICorner.CornerRadius = UDim.new(1, 0) -- Fully rounded
-    
         local function update(input)
-            local delta = input.Position.X - sliderStart
-            local newPosition = math.clamp(delta / sliderSize, 0, 1) -- Normalized position
-            local newValue = math.floor((newPosition * (max - min)) + min) -- Convert to actual value
+            local sizeX = sliderBar.AbsoluteSize.X
+            local deltaX = math.clamp((input.Position.X - sliderBar.AbsolutePosition.X) / sizeX, 0, 1)
+            local newValue = math.floor((deltaX * (max - min)) + min)
     
-            slider.Position = UDim2.new(newPosition, 0, 0.5, 0)
-    
-            if callback then
-                callback(newValue) -- Send updated value to the callback function
-            end
+            sliderButton.Position = UDim2.new(deltaX, -6, 0.5, -6)
+            label.Text = text .. ": " .. tostring(newValue)
+            callback(newValue)
         end
     
-        frame.InputBegan:Connect(function(input)
+        sliderButton.InputBegan:Connect(function(input)
             if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
                 dragging = true
-                sliderStart = input.Position.X - slider.AbsolutePosition.X
             end
         end)
     
-        frame.InputChanged:Connect(function(input)
+        sliderButton.InputChanged:Connect(function(input)
             if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
-                dragInput = input
+                if dragging then update(input) end
             end
         end)
     
-        UserInputService.InputChanged:Connect(function(input)
-            if input == dragInput and dragging then
-                update(input)
-            end
-        end)
-    
-        UserInputService.InputEnded:Connect(function(input)
+        game:GetService("UserInputService").InputEnded:Connect(function(input)
             if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
                 dragging = false
             end
         end)
+    
+        self:Resize()
+        return sliderButton
     end
 
     function library:DestroyUI()
