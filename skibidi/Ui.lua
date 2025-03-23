@@ -5,7 +5,7 @@ return function(Config, ESP, Aimbot, Gunmod)
     local Loop
     local UI = library:CreateWindow({ text = "Railed" })
     
-    UI:AddToggle("ESP Enable", Config.Enabled, function(state)
+    UI:AddToggle("ESP Enable", function(state)
         if state then
             ESP.Initialize()
             ESP.Update()
@@ -13,7 +13,7 @@ return function(Config, ESP, Aimbot, Gunmod)
             ESP.Cleanup()
         end
         Config.Enabled = state
-    end)
+    end, Config.Enabled)
 
     UI:AddSlider("Max Distance", 100, 2000, Config.MaxDistance, function(value)
         Config.MaxDistance = value
