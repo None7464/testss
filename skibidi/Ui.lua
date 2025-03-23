@@ -104,10 +104,10 @@ return function(Config, ESP, Aimbot, Gunmod)
         Gunmod.ToggleGunMods()
     end)
 
-    UI:AddLabel("Auto Farm Bonds Soon!")
+    UI1:AddLabel("Auto Farm Bonds Soon!")
     
-    UI:AddButton("Kill UI", function()
-        library:KillUI()
+    UI1:AddButton("💀 Kill UI 💀", function()
+        library:DestroyUI()
     end)
     return UI
 end
