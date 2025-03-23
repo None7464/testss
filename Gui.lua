@@ -253,7 +253,7 @@ function library:CreateWindow(options)
                 BackgroundTransparency = 1,
                 TextColor3 = Color3.fromRGB(255, 255, 255),
                 TextXAlignment = Enum.TextXAlignment.Left,
-                LayoutOrder = self.Count,
+                LayoutOrder = self.count,
                 TextSize = 16,
                 Font = Enum.Font.SourceSans,
                 Parent = self.container
@@ -308,7 +308,7 @@ function library:CreateWindow(options)
                 TextSize = 16,
                 Text = "",
                 Font = Enum.Font.SourceSans,
-                LayoutOrder = self.Count,
+                LayoutOrder = self.count,
                 BorderSizePixel = 0,
                 Parent = self.container
             }
@@ -341,7 +341,7 @@ function library:CreateWindow(options)
                 TextXAlignment = Enum.TextXAlignment.Left,
                 TextSize = 16,
                 Font = Enum.Font.SourceSans,
-                LayoutOrder = self.Count,
+                LayoutOrder = self.count,
                 Parent = self.container
             }
         )
@@ -374,7 +374,7 @@ function library:CreateWindow(options)
                 TextXAlignment = Enum.TextXAlignment.Left,
                 TextSize = 16,
                 Font = Enum.Font.SourceSans,
-                LayoutOrder = self.Count,
+                LayoutOrder = self.count,
                 Parent = self.container
             }
         )
@@ -402,7 +402,7 @@ function library:CreateWindow(options)
                 Text = default,
                 Font = Enum.Font.SourceSans,
                 BorderSizePixel = 0,
-                LayoutOrder = self.Count,
+                LayoutOrder = self.count,
                 Parent = self.container
             }
         )
