@@ -1,5 +1,3 @@
--- Credits on the actual script https://github.com/LxckStxp i just updated it and made some functions and available for mobile users
-
 local baseUrl = "https://raw.githubusercontent.com/None7464/testss/main/skibidi/"
 
 local function SafeLoad(url)
@@ -21,11 +19,11 @@ local function SafeLoad(url)
     end
 end
 
-local Config = SafeLoad(baseUrl .. "Config.lua"))()
+local Config = SafeLoad(baseUrl .. "Config.lua")()
 local Utilities = SafeLoad(baseUrl .. "Utilities.lua")()
-local ESP = SafeLoad(baseUrl .. "ESP/ESP.lua"))()(Config, Utilities)
-local Gunmod = SafeLoad(baseUrl .. "Gunmod.lua"))()
-local Aimbot = SafeLoad(baseUrl .. "Aimbot.lua"))()
+local ESP = SafeLoad(baseUrl .. "ESP/ESP.lua")()(Config, Utilities)
+local Gunmod = SafeLoad(baseUrl .. "Gunmod.lua")()
+local Aimbot = SafeLoad(baseUrl .. "Aimbot.lua")()
 
 local UI = SafeLoad(baseUrl .. "Ui.lua") -- Check if it loads correctly
 if UI then
