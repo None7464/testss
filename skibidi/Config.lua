@@ -1,5 +1,5 @@
 local Config = {
-    Enabled = true,
+    Enabled = false,
     MaxDistance = 500,
     Colors = {
         -- Humanoid Colors
