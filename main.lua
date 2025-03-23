@@ -24,7 +24,9 @@ local Config = SafeLoad(baseUrl .. "Config.lua")
 local Utilities = SafeLoad(baseUrl .. "Utilities.lua")
 local ESP = SafeLoad(baseUrl .. "ESP/ESP.lua")(Config, Utilities)
 local Gunmod = SafeLoad(baseUrl .. "Gunmod.lua")
-local Aimbot = SafeLoad(baseUrl .. "Aimbot.lua")
+local Aimbot = SafeLoad(baseUrl .. "Aimbot.lua")(Config, ESP, Gunmod, Aimbot)
+
+ESP.Initialize()
 
 local UI = SafeLoad(baseUrl .. "Ui.lua") -- Check if it loads correctly
 if UI then
