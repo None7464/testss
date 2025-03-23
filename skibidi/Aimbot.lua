@@ -70,15 +70,13 @@ local function findClosestNPC()
     return closestNPC
 end
 
--- Smooth aiming function
 local function smoothAim(targetPos)
     local currentPos = Camera.CFrame.Position
     local direction = (targetPos - currentPos).Unit
-    local newPos = currentPos + direction * 0.1  -- Adjust this for a smoother aim
+    local newPos = currentPos + direction * 0.1  -- Adjust for smoother aim
     Camera.CFrame = CFrame.lookAt(currentPos, newPos)
 end
 
--- Aim at target's head smoothly
 local function aimAtTarget()
     if not Aimbot.Target or not Aimbot.Target.PrimaryPart then return end
     
@@ -86,14 +84,18 @@ local function aimAtTarget()
     if not head then return end
     
     smoothAim(head.Position)
+
+    -- **Auto-switch to a closer target if available**
+    local newTarget = findClosestNPC()
+    if newTarget and newTarget ~= Aimbot.Target then
+        Aimbot.Target = newTarget
+    end
 end
 
 function Aimbot.AddMobileAimbotButton()
     local UserInputService = game:GetService("UserInputService")
 
-    -- Check if the player is on mobile
     if not UserInputService.TouchEnabled or UserInputService.KeyboardEnabled then
-        -- Show notification if player is on PC
         if game:GetService("StarterGui"):FindFirstChild("SetCore") then
             game:GetService("StarterGui"):SetCore("SendNotification", {
                 Title = "Aimbot",
@@ -144,7 +146,6 @@ function Aimbot.AddMobileAimbotButton()
     end)
 end
 
--- Handle input for aimbot activation
 function Aimbot.Initialize()
     UserInputService.InputBegan:Connect(function(input, gameProcessed)
         if gameProcessed then return end
