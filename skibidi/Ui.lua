@@ -93,8 +93,12 @@ return function(Config, ESP, Aimbot, Gunmod)
         task.wait(3)
     
         if CFloop then
+            wait(1)
             CFloop:Disconnect()
             CFloop = nil
+        else
+            CFloop:Disconnect()
+            CFloop = nil 
         end
     end)    
     
