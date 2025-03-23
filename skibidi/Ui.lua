@@ -5,7 +5,7 @@ return function(Config, ESP, Aimbot, Gunmod)
     local Loop
     local UI = library:CreateWindow({ text = "Railed" })
     
-    UI:AddToggle("ESP Enable", function(state)
+    UI:AddToggle("ESP Enable", Config.Enabled, function(state)
         Config.Enabled = state
         if state then
             ESP.Initialize()
