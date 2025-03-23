@@ -5,13 +5,11 @@ local Camera = workspace.CurrentCamera
 local Player = Players.LocalPlayer
 
 local Aimbot = {
-    Enabled = false, -- Toggle with 'F' key
-    Aiming = false,  -- Tracks if the user is holding the aim key
+    Enabled = false, -- Toggle with 'Y' key
     Target = nil,    -- The NPC currently being aimed at
     RenderConnection = nil,
     Settings = {
-        AimKey = Enum.UserInputType.MouseButton2, -- Right-click to aim
-        ToggleKey = Enum.KeyCode.Y -- Press 'F' to toggle aimbot
+        ToggleKey = Enum.KeyCode.Y -- Press 'Y' to toggle aimbot
     }
 }
 
@@ -73,25 +71,25 @@ end
 local function smoothAim(targetPos)
     local currentPos = Camera.CFrame.Position
     local direction = (targetPos - currentPos).Unit
-    local newPos = currentPos + direction * 0.1  -- Adjust for smoother aim
+    local newPos = currentPos + direction * 0.1  -- Adjust this for a smoother aim
     Camera.CFrame = CFrame.lookAt(currentPos, newPos)
 end
 
 local function aimAtTarget()
-    if not Aimbot.Target or not Aimbot.Target.PrimaryPart then return end
-    
-    local head = Aimbot.Target:FindFirstChild("Head") or Aimbot.Target.PrimaryPart
-    if not head then return end
-    
-    smoothAim(head.Position)
-
-    -- **Auto-switch to a closer target if available**
+    if not Aimbot.Enabled then return end
     local newTarget = findClosestNPC()
+
     if newTarget and newTarget ~= Aimbot.Target then
         Aimbot.Target = newTarget
     end
-end
 
+    if Aimbot.Target and Aimbot.Target.PrimaryPart then
+        local head = Aimbot.Target:FindFirstChild("Head") or Aimbot.Target.PrimaryPart
+        if head then
+            smoothAim(head.Position)
+        end
+    end
+end
 function Aimbot.AddMobileAimbotButton()
     local UserInputService = game:GetService("UserInputService")
 
@@ -146,35 +144,39 @@ function Aimbot.AddMobileAimbotButton()
     end)
 end
 
+local function notify(message)
+    game:GetService("StarterGui"):SetCore("SendNotification", {
+        Title = "Skibdi",
+        Text = message,
+        Duration = 2
+    })
+end
+
+if Aimbot.Enabled then
+    notify("Aimbot Enabled")
+else
+    notify("Aimbot Disabled")
+end
+
 function Aimbot.Initialize()
+    -- Toggle aimbot with 'Y' key
     UserInputService.InputBegan:Connect(function(input, gameProcessed)
         if gameProcessed then return end
 
-        -- Toggle aimbot with 'F' key
         if input.KeyCode == Aimbot.Settings.ToggleKey then
             Aimbot.Enabled = not Aimbot.Enabled
-            print("Aimbot:", Aimbot.Enabled and "ON" or "OFF")
-        end
+            notify(Aimbot.Enabled and "Aimbot Activated" or "Aimbot Deactivated")
 
-        -- Right-click to activate aimbot
-        if Aimbot.Enabled and input.UserInputType == Aimbot.Settings.AimKey then
-            Aimbot.Aiming = true
-            Aimbot.Target = findClosestNPC()
-            if Aimbot.Target then
-                Aimbot.RenderConnection = RunService.RenderStepped:Connect(aimAtTarget)
-            end
-        end
-    end)
-    
-    UserInputService.InputEnded:Connect(function(input, gameProcessed)
-        if gameProcessed then return end
-
-        if input.UserInputType == Aimbot.Settings.AimKey then
-            Aimbot.Aiming = false
-            Aimbot.Target = nil
-            if Aimbot.RenderConnection then
-                Aimbot.RenderConnection:Disconnect()
-                Aimbot.RenderConnection = nil
+            if Aimbot.Enabled then
+                if not Aimbot.RenderConnection then
+                    Aimbot.RenderConnection = RunService.RenderStepped:Connect(aimAtTarget)
+                end
+            else
+                if Aimbot.RenderConnection then
+                    Aimbot.RenderConnection:Disconnect()
+                    Aimbot.RenderConnection = nil
+                end
+                Aimbot.Target = nil
             end
         end
     end)
