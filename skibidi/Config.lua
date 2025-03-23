@@ -1,6 +1,6 @@
 local Config = {
-    Enabled = true,
-    MaxDistance = 1000,
+    Enabled = false,
+    MaxDistance = 500,
     Colors = {
         -- Humanoid Colors
         Player = Color3.fromRGB(0, 0, 255),    -- Blue for players
