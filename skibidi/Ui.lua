@@ -33,14 +33,22 @@ return function(Config, ESP, Aimbot, Gunmod)
         local StarterGui = game:GetService("StarterGui")
         
         local Player = Players.LocalPlayer
-
+    
+        -- Ensure the player's character is fully loaded
+        if not Player.Character or not Player.Character.Parent then
+            Player.CharacterAdded:Wait() -- Wait until the character is added
+        end
+    
+        local Character = Player.Character -- Re-fetch the character after waiting
+        local Head = Character:WaitForChild("Head")
+    
         CFspeed = 50
-        Player.Character:FindFirstChildOfClass('Humanoid').PlatformStand = true
-        local Head = Player.Character:WaitForChild("Head")
+        Character:FindFirstChildOfClass('Humanoid').PlatformStand = true
         Head.Anchored = true
+        
         if CFloop then CFloop:Disconnect() end
         CFloop = RunService.Heartbeat:Connect(function(deltaTime)
-            local moveDirection = Player.Character:FindFirstChildOfClass('Humanoid').MoveDirection * (CFspeed * deltaTime)
+            local moveDirection = Character:FindFirstChildOfClass('Humanoid').MoveDirection * (CFspeed * deltaTime)
             local headCFrame = Head.CFrame
             local cameraCFrame = workspace.CurrentCamera.CFrame
             local cameraOffset = headCFrame:ToObjectSpace(cameraCFrame).Position
@@ -51,22 +59,22 @@ return function(Config, ESP, Aimbot, Gunmod)
             local objectSpaceVelocity = CFrame.new(cameraPosition, Vector3.new(headPosition.X, cameraPosition.Y, headPosition.Z)):VectorToObjectSpace(moveDirection)
             Head.CFrame = CFrame.new(headPosition) * (cameraCFrame - cameraPosition) * CFrame.new(objectSpaceVelocity)
         end)
-
-        Character:PivotTo(CFrame.new(-346, -40, -49060))
     
+        -- Move the character safely
+        Character:PivotTo(CFrame.new(-346, -40, -49060))
+        
         notify("You have 20 seconds left until you go back to the train.", 5)
-        wait(10)
+        task.wait(10)
         notify("10 seconds left!", 5)
-        wait(10)
+        task.wait(10)
         notify("Returning to the train...", 3)
-        wait(3)
+        task.wait(3)
     
         if CFloop then
             CFloop:Disconnect()
             CFloop = nil
         end
-    end)
-    
+    end)    
     
     UI1:AddToggle("FullBrightness", function(state)
         if state then
