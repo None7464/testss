@@ -60,6 +60,22 @@ return function(Config, ESP, Aimbot, Gunmod)
         Gunmod.ToggleGunMods()
     end)
 
+    local timeFuelLabel = UI1:AddLabel("Loading...")
+    
+    local function updateLabel()
+        while true do
+            local time = workspace.Train.TrainControls.TimeDial.SurfaceGui.TextLabel.Text -- Time
+            local fuel = workspace.Train.Fuel.Value -- Fuel Value
+            
+
+            timeFuelLabel.Text = "Time: " .. time .. " | Fuel: " .. fuel
+            
+            wait(0.1)
+        end
+    end
+
+    task.spawn(updateLabel)
+
     UI1:AddLabel("Auto Farm Bonds Soon!")
 
     return UI
