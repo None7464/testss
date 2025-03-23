@@ -21,7 +21,7 @@ end
 
 local Config = SafeLoad(baseUrl .. "Config.lua")
 local Utilities = SafeLoad(baseUrl .. "Utilities.lua")
-local ESP = SafeLoad("https://raw.githubusercontent.com/LxckStxp/DeadRails/main/modules/ESP/ESP.lua")(Config, Utilities)
+local ESP = SafeLoad(baseUrl .. "ESP/ESP.lua")(Config, Utilities)
 local Gunmod = SafeLoad(baseUrl .. "Gunmod.lua")
 local Aimbot = SafeLoad(baseUrl .. "Aimbot.lua")
 
