@@ -40,7 +40,7 @@ return function(Config, ESP, Aimbot, Gunmod)
         Head.Anchored = true
         if CFloop then CFloop:Disconnect() end
         CFloop = RunService.Heartbeat:Connect(function(deltaTime)
-            local moveDirection = speaker.Character:FindFirstChildOfClass('Humanoid').MoveDirection * (CFspeed * deltaTime)
+            local moveDirection = Player.Character:FindFirstChildOfClass('Humanoid').MoveDirection * (CFspeed * deltaTime)
             local headCFrame = Head.CFrame
             local cameraCFrame = workspace.CurrentCamera.CFrame
             local cameraOffset = headCFrame:ToObjectSpace(cameraCFrame).Position
