@@ -289,11 +289,12 @@ function library:CreateWindow(options)
             print("🔍 DEBUG: Callback type:", typeof(callback))
             print("🔍 DEBUG: Toggle state:", self.toggles[text])
     
-            if typeof(callback) == "function" then
-                callback(self.toggles[text]) -- Safe execution
-            else
-                warn("🚨 ERROR: Callback is NOT a function, skipping execution!")
+            if typeof(callback) ~= "function" then
+                warn("🚨 Callback became invalid! Resetting to an empty function.")
+                callback = function() end -- Ensure it's always callable
             end
+            
+            callback(self.toggles[text]) -- Now this can NEVER cause an error
         end)
     
         self:Resize()
