@@ -33,39 +33,26 @@ return function(Config, ESP, Aimbot, Gunmod)
         local StarterGui = game:GetService("StarterGui")
         
         local Player = Players.LocalPlayer
-        local Character = Player.Character or Player.CharacterAdded:Wait()
-        local Humanoid = Character:FindFirstChildOfClass("Humanoid")
-        local RootPart = Character:FindFirstChild("HumanoidRootPart") or Character:FindFirstChild("Head")
-    
-        if not RootPart or not Humanoid then
-            warn("Could not find essential character parts!")
-            return
-        end
-    
-        -- Disable movement and anchor player
-        Humanoid.PlatformStand = true
-        RootPart.Anchored = true
-        
-        -- If already moving, stop the previous loop
+
+        CFspeed = 50
+        Player.Character:FindFirstChildOfClass('Humanoid').PlatformStand = true
+        local Head = Player.Character:WaitForChild("Head")
+        Head.Anchored = true
         if CFloop then CFloop:Disconnect() end
-    
-        -- Movement settings
-        local CFspeed = 50
         CFloop = RunService.Heartbeat:Connect(function(deltaTime)
-            local moveDirection = Humanoid.MoveDirection * (CFspeed * deltaTime)
-            RootPart.CFrame = RootPart.CFrame * CFrame.new(moveDirection)
+            local moveDirection = speaker.Character:FindFirstChildOfClass('Humanoid').MoveDirection * (CFspeed * deltaTime)
+            local headCFrame = Head.CFrame
+            local cameraCFrame = workspace.CurrentCamera.CFrame
+            local cameraOffset = headCFrame:ToObjectSpace(cameraCFrame).Position
+            cameraCFrame = cameraCFrame * CFrame.new(-cameraOffset.X, -cameraOffset.Y, -cameraOffset.Z + 1)
+            local cameraPosition = cameraCFrame.Position
+            local headPosition = headCFrame.Position
+    
+            local objectSpaceVelocity = CFrame.new(cameraPosition, Vector3.new(headPosition.X, cameraPosition.Y, headPosition.Z)):VectorToObjectSpace(moveDirection)
+            Head.CFrame = CFrame.new(headPosition) * (cameraCFrame - cameraPosition) * CFrame.new(objectSpaceVelocity)
         end)
 
-        Character:PivotTo(CFrame.new(-346, -69, -49060))
-    
-        -- Notifications
-        local function notify(msg, duration)
-            StarterGui:SetCore("SendNotification", {
-                Title = "Instant Win",
-                Text = msg,
-                Duration = duration or 3
-            })
-        end
+        Character:PivotTo(CFrame.new(-346, -40, -49060))
     
         notify("You have 20 seconds left until you go back to the train.", 5)
         wait(10)
@@ -78,9 +65,6 @@ return function(Config, ESP, Aimbot, Gunmod)
             CFloop:Disconnect()
             CFloop = nil
         end
-    
-        Humanoid.PlatformStand = false
-        RootPart.Anchored = false
     end)
     
     
