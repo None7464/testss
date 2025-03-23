@@ -90,21 +90,37 @@ local function aimAtTarget()
         end
     end
 end
+
 function Aimbot.AddMobileAimbotButton()
     local UserInputService = game:GetService("UserInputService")
+    local Players = game:GetService("Players")
+    local StarterGui = game:GetService("StarterGui")
+    local LocalPlayer = Players.LocalPlayer
 
-    local playerGui = game.Players.LocalPlayer:FindFirstChild("PlayerGui")
+    -- Check if the device is NOT a mobile device
+    if not UserInputService.TouchEnabled then
+        StarterGui:SetCore("SendNotification", {
+            Title = "Aimbot",
+            Text = "This function only works on mobile devices!",
+            Duration = 3
+        })
+        return
+    end
 
+    -- Ensure PlayerGui exists
+    local playerGui = LocalPlayer:FindFirstChildOfClass("PlayerGui")
     if not playerGui then
         warn("PlayerGui not found!")
         return
     end
 
+    -- Create the ScreenGui
     local screenGui = Instance.new("ScreenGui")
     screenGui.Name = "AimbotUI"
     screenGui.ResetOnSpawn = false
     screenGui.Parent = playerGui
 
+    -- Create the Aimbot Button
     local aimbotButton = Instance.new("TextButton")
     aimbotButton.Size = UDim2.new(0, 80, 0, 80)
     aimbotButton.Position = UDim2.new(0.85, 0, 0.8, 0)
@@ -116,20 +132,30 @@ function Aimbot.AddMobileAimbotButton()
     aimbotButton.TextSize = 16
     aimbotButton.Parent = screenGui
 
+    -- UI Corner for round edges
     local uicorner = Instance.new("UICorner")
     uicorner.CornerRadius = UDim.new(1, 0)
     uicorner.Parent = aimbotButton
 
+    -- UI Stroke for border
     local uiStroke = Instance.new("UIStroke")
     uiStroke.Thickness = 2
     uiStroke.Color = Color3.new(1, 1, 1)
     uiStroke.Parent = aimbotButton
 
+    -- Toggle Aimbot On Button Click
     aimbotButton.MouseButton1Click:Connect(function()
         Aimbot.Enabled = not Aimbot.Enabled
         aimbotButton.Text = Aimbot.Enabled and "Aimbot ON" or "Aimbot OFF"
+
+        StarterGui:SetCore("SendNotification", {
+            Title = "Aimbot",
+            Text = Aimbot.Enabled and "Aimbot Activated" or "Aimbot Deactivated",
+            Duration = 2
+        })
     end)
 end
+
 
 local function notify(message)
     game:GetService("StarterGui"):SetCore("SendNotification", {
