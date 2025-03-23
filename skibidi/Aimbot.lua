@@ -11,7 +11,7 @@ local Aimbot = {
     RenderConnection = nil,
     Settings = {
         AimKey = Enum.UserInputType.MouseButton2, -- Right-click to aim
-        ToggleKey = Enum.KeyCode.F -- Press 'F' to toggle aimbot
+        ToggleKey = Enum.KeyCode.Y -- Press 'F' to toggle aimbot
     }
 }
 
