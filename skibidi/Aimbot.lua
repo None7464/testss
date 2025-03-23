@@ -84,36 +84,6 @@ local function aimAtTarget()
     Camera.CFrame = newCFrame
 end
 
-function Aimbot.AddMobileAimbotButton()
-    local player = game:GetService("Players").LocalPlayer
-    local playerGui = player:FindFirstChild("PlayerGui")
-
-    local screenGui = Instance.new("ScreenGui")
-    screenGui.Parent = playerGui
-
-    local aimbotButton = Instance.new("TextButton")
-    aimbotButton.Size = UDim2.new(0, 69, 0, 50)
-    aimbotButton.Position = UDim2.new(0.874, 0, 0.412, 0)
-    aimbotButton.BackgroundColor3 = Color3.new(0, 0, 0)
-    aimbotButton.Text = "HoldToAimbot"
-    aimbotButton.TextColor3 = Color3.new(1, 1, 1)
-    aimbotButton.Font = Enum.Font.SourceSansBold
-    aimbotButton.TextSize = 14
-    aimbotButton.Parent = screenGui
-
-    aimbotButton.ClipsDescendants = true
-    local uicorner = Instance.new("UICorner")
-    uicorner.CornerRadius = UDim2.new(1, 0)
-    uicorner.Parent = aimbotButton
-
-    local userInputService = game:GetService("UserInputService")
-    userInputService.InputBegan:Connect(function(input, gameProcessed)
-        if not gameProcessed and input.KeyCode == Enum.KeyCode.Home then
-            aimbotButton:Destroy()
-        end
-    end)
-end
-
 -- Handle input for aimbot
 function Aimbot.Initialize()
     UserInputService.InputBegan:Connect(function(input, gameProcessed)
