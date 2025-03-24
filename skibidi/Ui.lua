@@ -90,11 +90,7 @@ return function(Config, ESP, Aimbot)
         task.wait(3)
 
         local function disconect()
-            if CFloop then
-                wait(1)
-                CFloop:Disconnect()
-                CFloop = nil
-            end
+            CFloop:Disconnect()
         end
 
         disconect()
