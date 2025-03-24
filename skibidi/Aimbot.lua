@@ -83,7 +83,7 @@ local function aimAtTarget()
     Camera.CFrame = newCFrame
 end
 
-function Aimbot.AddMobileAimbotButton()
+local function AddMobileAimbotButton()
     local UserInputService = game:GetService("UserInputService")
 
     if not UserInputService.TouchEnabled or UserInputService.KeyboardEnabled then
@@ -150,6 +150,10 @@ function Aimbot.AddMobileAimbotButton()
         end
     end)
 end
+
+local Aimbot = {
+    AddMobileAimbotButton = AddMobileAimbotButton
+}
 
 
 -- Handle input for aimbot
