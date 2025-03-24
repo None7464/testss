@@ -131,6 +131,8 @@ return function(Config, ESP, Aimbot, Gunmod)
     end)
 
     UI:AddLabel("Auto Farm Bonds Soon!")
-    print("Config.Enabled Type:", typeof(Config.Enabled), "Value:", Config.Enabled)
+    UI1:AddButton("💀 Kill UI 💀", function()
+         library:DestroyUI()
+     end)
     return UI
 end
