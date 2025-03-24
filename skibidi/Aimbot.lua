@@ -5,7 +5,7 @@ local Camera = workspace.CurrentCamera
 local Player = Players.LocalPlayer
 
 local Aimbot = {
-    Enabled = false, -- Controlled by UI
+    Enabled = true, -- Controlled by UI
     Aiming = false, -- Tracks right-click state
     Target = nil,   -- Current NPC target
     RenderConnection = nil, -- Store RenderStepped connection
