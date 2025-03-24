@@ -3,7 +3,7 @@ local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local Player = Players.LocalPlayer
 
-local GunMods = false
+local GunMods = true
 local ValidGuns = {
     ["NavyRevolver"] = true,
     ["Shotgun"] = true,
@@ -36,14 +36,3 @@ RunService.RenderStepped:Connect(function()
         end
     end
 end)
-
-local function ToggleGunMods()
-    GunMods = not GunMods
-    print("GunMods:", GunMods and "Enabled" or "Disabled")
-end
-
-local Gunmod = {
-    ToggleGunMods = ToggleGunMods
-}
-
-return Gunmod
