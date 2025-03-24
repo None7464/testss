@@ -1,4 +1,4 @@
-return function(Config, ESP, Aimbot, Gunmod)
+return function(Config, ESP, Aimbot)
     local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/None7464/testss/main/Gui.lua"))()
     local RunService = game:GetService("RunService")
     local Lighting = game:GetService("Lighting")
@@ -20,10 +20,6 @@ return function(Config, ESP, Aimbot, Gunmod)
     end)
     
     UI:AddLabel("Aimbot: Press Q to Enable (PC)")
-
-    UI:AddButton("Aimbot Button", function()
-        Aimbot.AddMobileAimbotButton()
-    end)
 
     local UI1 = library:CreateWindow({ text = "Skibidi" })
 
@@ -64,6 +60,7 @@ return function(Config, ESP, Aimbot, Gunmod)
                 Duration = duration or 3
             })
         end
+
         CFspeed = 50
         Character:FindFirstChildOfClass('Humanoid').PlatformStand = true
         Head.Anchored = true
@@ -91,17 +88,19 @@ return function(Config, ESP, Aimbot, Gunmod)
         task.wait(10)
         notify("Returning to the train...", 3)
         task.wait(3)
-    
-        if CFloop then
-            wait(1)
-            CFloop:Disconnect()
-            CFloop = nil
-        else
-            CFloop:Disconnect()
-            CFloop = nil 
+
+        local function disconect()
+            if CFloop then
+                wait(1)
+                CFloop:Disconnect()
+                CFloop = nil
+            end
         end
-    end)    
-    
+
+        disconect()
+
+    end)
+
     UI1:AddToggle("FullBrightness", function(state)
         if state then
             if Loop then
@@ -125,14 +124,12 @@ return function(Config, ESP, Aimbot, Gunmod)
             end
         end
     end)
-
-    UI1:AddButton("Turn On GunMode", function()
-        Gunmod.ToggleGunMods()
-    end)
-
+    
     UI:AddLabel("Auto Farm Bonds Soon!")
+
     UI1:AddButton("💀 Kill UI 💀", function()
          library:DestroyUI()
-     end)
+    end)
+
     return UI
 end
