@@ -39,62 +39,13 @@ return function(Config, ESP, Aimbot)
     task.spawn(updateLabel)
 
     UI1:AddButton("Instant Win", function()
-        local Players = game:GetService("Players")
-        local RunService = game:GetService("RunService")
-        local StarterGui = game:GetService("StarterGui")
-        
+        local Players = game:GetService("Players")        
         local Player = Players.LocalPlayer
-    
-        -- Ensure the player's character is fully loaded
         if not Player.Character or not Player.Character.Parent then
-            Player.CharacterAdded:Wait() -- Wait until the character is added
+            Player.CharacterAdded:Wait()
         end
-    
-        local Character = Player.Character -- Re-fetch the character after waiting
-        local Head = Character:WaitForChild("Head")
-
-        local function notify(msg, duration)
-            StarterGui:SetCore("SendNotification", {
-                Title = "Instant Win",
-                Text = msg,
-                Duration = duration or 3
-            })
-        end
-
-        CFspeed = 50
-        Character:FindFirstChildOfClass('Humanoid').PlatformStand = true
-        Head.Anchored = true
-        
-        if CFloop then CFloop:Disconnect() end
-        CFloop = RunService.Heartbeat:Connect(function(deltaTime)
-            local moveDirection = Character:FindFirstChildOfClass('Humanoid').MoveDirection * (CFspeed * deltaTime)
-            local headCFrame = Head.CFrame
-            local cameraCFrame = workspace.CurrentCamera.CFrame
-            local cameraOffset = headCFrame:ToObjectSpace(cameraCFrame).Position
-            cameraCFrame = cameraCFrame * CFrame.new(-cameraOffset.X, -cameraOffset.Y, -cameraOffset.Z + 1)
-            local cameraPosition = cameraCFrame.Position
-            local headPosition = headCFrame.Position
-    
-            local objectSpaceVelocity = CFrame.new(cameraPosition, Vector3.new(headPosition.X, cameraPosition.Y, headPosition.Z)):VectorToObjectSpace(moveDirection)
-            Head.CFrame = CFrame.new(headPosition) * (cameraCFrame - cameraPosition) * CFrame.new(objectSpaceVelocity)
-        end)
-    
-        -- Move the character safely
+        local Character = Player.Character 
         Character:PivotTo(CFrame.new(-346, -40, -49060))
-        
-        notify("You have 20 seconds left until you go back to the train.", 5)
-        task.wait(10)
-        notify("10 seconds left!", 5)
-        task.wait(10)
-        notify("Returning to the train...", 3)
-        task.wait(3)
-
-        local function disconect()
-            CFloop:Disconnect()
-        end
-
-        disconect()
-
     end)
 
     UI1:AddToggle("FullBrightness", function(state)
