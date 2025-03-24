@@ -19,7 +19,7 @@ return function(Config, ESP, Aimbot)
         Config.MaxDistance = value
     end)
     
-    UI:AddLabel("Aimbot: Press Q to Enable (PC)")
+    UI:AddLabel("Aimbot: Press RightClick to Aim")
 
     local UI1 = library:CreateWindow({ text = "Skibidi" })
 
