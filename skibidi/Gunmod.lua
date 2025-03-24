@@ -30,9 +30,9 @@ RunService.RenderStepped:Connect(function()
             local SpreadAngle = Config:FindFirstChild("SpreadAngle")
             local ReloadDuration = Config:FindFirstChild("ReloadDuration")
 
-            if FireDelay then FireDelay.Value = 0.1 end
+            if FireDelay then FireDelay.Value = 0.4 end
             if SpreadAngle then SpreadAngle.Value = 0.5 end
-            if ReloadDuration then ReloadDuration.Value = 0.1 end
+            if ReloadDuration then ReloadDuration.Value = 0.2 end
         end
     end
 end)
