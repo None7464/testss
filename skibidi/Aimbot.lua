@@ -151,10 +151,7 @@ local function AddMobileAimbotButton()
     end)
 end
 
-local Aimbot = {
-    AddMobileAimbotButton = AddMobileAimbotButton
-}
-
+AddMobileAimbotButton()
 
 -- Handle input for aimbot
 function Aimbot.Initialize()
