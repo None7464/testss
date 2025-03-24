@@ -76,11 +76,10 @@ local function aimAtTarget()
     local head = Aimbot.Target:FindFirstChild("Head") or Aimbot.Target.PrimaryPart
     if not head then return end
     
-    local targetPos = head.Position -- Direct head targeting, no offset
+    local targetPos = head.Position
     local lookVector = (targetPos - Camera.CFrame.Position).Unit
     local newCFrame = CFrame.new(Camera.CFrame.Position, Camera.CFrame.Position + lookVector)
     
-    -- Instant aim (no smoothing)
     Camera.CFrame = newCFrame
 end
 
