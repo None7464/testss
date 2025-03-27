@@ -219,20 +219,24 @@ example:AddToggle("Enemy Esp", function(state)
     end
 end)
 
+stats = false
+
 local example1 = library:CreateWindow({ text = "Stats" })
 
 local characterLabel = example1:AddLabel("Character:", player.Appearance.Outfits.Value)
 local killStreakLabel = example1:AddLabel("KillStreak:", player.leaderstats.Streak.Value)
 local cashLabel = example1:AddLabel("Cash:", player.leaderstats.Points.Value)
 
-player.Appearance.Outfits.Changed:Connect(function()
-    characterLabel.Text = "Character: " .. player.Appearance.Outfits.Value
-end)
+if stats then
+    player.Appearance.Outfits.Changed:Connect(function()
+        characterLabel.Text = "Character: " .. player.Appearance.Outfits.Value
+    end)
 
-player.leaderstats.Streak.Changed:Connect(function()
-    killStreakLabel.Text = "KillStreak: " .. player.leaderstats.Streak.Value
-end)
+    player.leaderstats.Streak.Changed:Connect(function()
+        killStreakLabel.Text = "KillStreak: " .. player.leaderstats.Streak.Value
+    end)
 
-player.leaderstats.Points.Changed:Connect(function()
-    cashLabel.Text = "Cash: " .. player.leaderstats.Points.Value
-end)
+    player.leaderstats.Points.Changed:Connect(function()
+        cashLabel.Text = "Cash: " .. player.leaderstats.Points.Value
+    end)
+end
