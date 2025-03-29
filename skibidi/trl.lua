@@ -15,7 +15,7 @@ local player = game.Players.LocalPlayer
 local RunService = game:GetService("RunService")
 
 local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/None7464/testss/refs/heads/main/Gui.lua", true))()
-local example = library:CreateWindow({ text = "SCP: The Red Lake" })
+local example = library:CreateWindow({ text = "The Red Lake" })
 
 local lastDamage = 0
 local lastDamageTime = tick()
@@ -179,8 +179,22 @@ end
 function autoFarm()
     while _G.autoFarm do
         wait(0.1)
-        local target = _G.randomEnemyFarm and getRandomEnemy() or focusOneEnemy()
-        if target then attackTarget(target) end
+
+        if _G.randomEnemyFarm and _G.focusEnemy then
+            warn("AutoFarm will not work because both Random Enemy Farm and Focus Enemy are enabled!")
+            return
+        end
+
+        local target = nil
+        if _G.randomEnemyFarm then
+            target = getRandomEnemy()
+        elseif _G.focusEnemy then
+            target = focusOneEnemy()
+        end
+
+        if target then 
+            attackTarget(target) 
+        end
     end
 end
 
@@ -194,12 +208,16 @@ end)
 
 example:AddToggle("Random Enemy Farm", function(state)
     _G.randomEnemyFarm = state
-    _G.focusEnemy = false
+    if _G.randomEnemyFarm then
+        _G.focusEnemy = false
+    end
 end)
 
 example:AddToggle("Focus Enemy", function(state)
     _G.focusEnemy = state
-    _G.randomEnemyFarm = false
+    if _G.focusEnemy then
+        _G.randomEnemyFarm = false
+    end
 end)
 
 example:AddToggle("Enemy Esp", function(state)
@@ -219,15 +237,27 @@ example:AddToggle("Enemy Esp", function(state)
     end
 end)
 
-stats = false
+local stat = false
 
-local example1 = library:CreateWindow({ text = "Stats" })
+example:AddToggle("Stats UI", function(state)
+    if state then 
+        stat = true
+    else
+        stat = false
+    end
+end)
 
-local characterLabel = example1:AddLabel("Character:", player.Appearance.Outfits.Value)
-local killStreakLabel = example1:AddLabel("KillStreak:", player.leaderstats.Streak.Value)
-local cashLabel = example1:AddLabel("Cash:", player.leaderstats.Points.Value)
+example:AddButton("Kill Ui", function()
+    library:DestroyUI()
+end)
 
-if stats then
+if stat then
+    local example1 = library:CreateWindow({ text = "Stats" })
+
+    local characterLabel = example1:AddLabel("Character:", player.Appearance.Outfits.Value)
+    local killStreakLabel = example1:AddLabel("KillStreak:", player.leaderstats.Streak.Value)
+    local cashLabel = example1:AddLabel("Cash:", player.leaderstats.Points.Value)
+
     player.Appearance.Outfits.Changed:Connect(function()
         characterLabel.Text = "Character: " .. player.Appearance.Outfits.Value
     end)
