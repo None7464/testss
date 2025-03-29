@@ -1,22 +1,11 @@
-local vu = game:GetService("VirtualUser")
-game:GetService("Players").LocalPlayer.Idled:connect(function()
-    vu:Button2Down(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
-    wait(1)
-    vu:Button2Up(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
-end)
-
-for i,v in ipairs(game:GetService("Workspace"):GetDescendants()) do -- insta prompt
-    if v.ClassName == "ProximityPrompt" then
-        v.HoldDuration = 0
-    end
-end
-
 local player = game.Players.LocalPlayer
 local RunService = game:GetService("RunService")
 
+-- ui lib
 local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/None7464/testss/refs/heads/main/Gui.lua", true))()
 local example = library:CreateWindow({ text = "The Red Lake" })
 
+-- functions 
 local lastDamage = 0
 local lastDamageTime = tick()
 
@@ -198,33 +187,60 @@ function autoFarm()
     end
 end
 
+local workspace = game:GetService("Workspace")
+
+local function updatePrompts()
+    for _, v in ipairs(workspace:GetDescendants()) do
+        if v:IsA("ProximityPrompt") then
+            v.HoldDuration = 0
+        end
+    end
+end
+
+if #workspace:GetDescendants() > 0 then
+    updatePrompts()
+end
+
+workspace.DescendantAdded:Connect(function(descendant)
+    if descendant:IsA("ProximityPrompt") then
+        descendant.HoldDuration = 0
+    end
+end)
+
+-- UI
+local autoFarm = false
+local randomEnemyFarm = true
+local focusEnemy = false
+local enemyEsp = false
+local stat = false
+
 example:AddToggle("Auto Farm", function(state)
-    _G.autoFarm = state
-    if _G.autoFarm then
+    autoFarm = state
+    if autoFarm then
         spawn(monitorDamage)
         spawn(autoFarm)
     end
 end)
 
 example:AddToggle("Random Enemy Farm", function(state)
-    _G.randomEnemyFarm = state
-    if _G.randomEnemyFarm then
-        _G.focusEnemy = false
+    randomEnemyFarm = state
+    if randomEnemyFarm then
+        focusEnemy = false
     end
 end)
 
 example:AddToggle("Focus Enemy", function(state)
-    _G.focusEnemy = state
-    if _G.focusEnemy then
-        _G.randomEnemyFarm = false
+    focusEnemy = state
+    if focusEnemy then
+        randomEnemyFarm = false
     end
 end)
 
 example:AddToggle("Enemy Esp", function(state)
-    _G.enemyEsp = state
-    if state then
+    enemyEsp = state
+    if enemyEsp then
         spawn(function()
-            while _G.enemyEsp do
+            while enemyEsp do
                 UpdateEnemies()
                 task.wait(1)
             end
@@ -237,36 +253,35 @@ example:AddToggle("Enemy Esp", function(state)
     end
 end)
 
-local stat = false
-
 example:AddToggle("Stats UI", function(state)
-    if state then 
-        stat = true
+    stat = state 
+
+    if stat then
+        example1 = library:CreateWindow({ text = "Stats" })
+
+        local characterLabel = example1:AddLabel("Character: " .. player.Appearance.Outfits.Value)
+        local killStreakLabel = example1:AddLabel("KillStreak: " .. player.leaderstats.Streak.Value)
+        local cashLabel = example1:AddLabel("Cash: " .. player.leaderstats.Points.Value)
+
+        player.Appearance.Outfits.Changed:Connect(function()
+            characterLabel.Text = "Character: " .. player.Appearance.Outfits.Value
+        end)
+
+        player.leaderstats.Streak.Changed:Connect(function()
+            killStreakLabel.Text = "KillStreak: " .. player.leaderstats.Streak.Value
+        end)
+
+        player.leaderstats.Points.Changed:Connect(function()
+            cashLabel.Text = "Cash: " .. player.leaderstats.Points.Value
+        end)
     else
-        stat = false
+        if example1 then
+            example1:Destroy()
+            example1 = nil
+        end
     end
 end)
 
 example:AddButton("Kill Ui", function()
     library:DestroyUI()
 end)
-
-if stat then
-    local example1 = library:CreateWindow({ text = "Stats" })
-
-    local characterLabel = example1:AddLabel("Character:", player.Appearance.Outfits.Value)
-    local killStreakLabel = example1:AddLabel("KillStreak:", player.leaderstats.Streak.Value)
-    local cashLabel = example1:AddLabel("Cash:", player.leaderstats.Points.Value)
-
-    player.Appearance.Outfits.Changed:Connect(function()
-        characterLabel.Text = "Character: " .. player.Appearance.Outfits.Value
-    end)
-
-    player.leaderstats.Streak.Changed:Connect(function()
-        killStreakLabel.Text = "KillStreak: " .. player.leaderstats.Streak.Value
-    end)
-
-    player.leaderstats.Points.Changed:Connect(function()
-        cashLabel.Text = "Cash: " .. player.leaderstats.Points.Value
-    end)
-end
