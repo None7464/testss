@@ -1,16 +1,9 @@
 local player = game.Players.LocalPlayer
 local RunService = game:GetService("RunService")
-local autoFarm = false
-local randomEnemyFarm = true
-local focusEnemy = false
-local enemyEsp = false
-local stat = false
 
--- ui lib
 local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/None7464/testss/refs/heads/main/Gui.lua", true))()
 local example = library:CreateWindow({ text = "The Red Lake" })
 
--- functions 
 local lastDamage = 0
 local lastDamageTime = tick()
 
@@ -67,21 +60,18 @@ spawn(function()
 end)
 
 function monitorDamage()
-    while true do
+    while _G.autoFarm do
         task.wait(1)
         local damageFrame = player.PlayerGui:FindFirstChild("Crosshair") and player.PlayerGui.Crosshair.Main.Frame:FindFirstChild("DamageStack")
         if damageFrame and damageFrame:FindFirstChild("damage") then
-            local damageObject = damageFrame.damage
-            local currentDamage = damageObject:IsA("NumberValue") and damageObject.Value or tonumber(damageObject.Text) or 0
-            
+            local currentDamage = damageFrame.damage.Value
             if currentDamage ~= lastDamage then
                 lastDamage = currentDamage
                 lastDamageTime = tick()
             elseif tick() - lastDamageTime >= 2 then
-                autoFarm = false
-                task.wait(1)
-                autoFarm = true
-                spawn(autoFarm)
+                _G.autoFarm = false
+                task.wait(0.5)
+                _G.autoFarm = true
             end
         end
     end
@@ -90,13 +80,12 @@ end
 local NPCsFolder = game:GetService("Workspace"):FindFirstChild("NPCs")
 local enemies = {}
 local highlights = {}
-local bosses = {"Brute", "Bolty", "Titan", "Kraken", "Corrupted Titan", "Corrupted Brute", "Corrupted Bolty"}
 
-local function AddESP(enemy, isBoss)
+local function AddESP(enemy)
     if not highlights[enemy] then
         local highlight = Instance.new("Highlight")
         highlight.Parent = enemy
-        highlight.FillColor = isBoss and Color3.fromRGB(255, 165, 0) or Color3.fromRGB(255, 0, 0) -- Orange for bosses, Red for normal enemies
+        highlight.FillColor = Color3.fromRGB(255, 0, 0) -- Red for enemies
         highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
         highlight.FillTransparency = 0.5
         highlight.OutlineTransparency = 0
@@ -111,15 +100,6 @@ local function RemoveESP(enemy)
     end
 end
 
-local function IsBoss(name)
-    for _, bossName in ipairs(bosses) do
-        if name == bossName then
-            return true
-        end
-    end
-    return false
-end
-
 local function UpdateEnemies()
     for enemy, _ in pairs(highlights) do
         RemoveESP(enemy)
@@ -132,54 +112,42 @@ local function UpdateEnemies()
             local parentName = v.Parent.Parent.Name
             local humanoid = v.Parent:FindFirstChildOfClass("Humanoid")
             
-            if (parentName == "Tango" or parentName == "Monsters" or IsBoss(parentName)) and humanoid and humanoid.Health > 0 then
-                table.insert(enemies, {entity = v.Parent, isBoss = IsBoss(parentName)})
-                AddESP(v.Parent, IsBoss(parentName))
+            if (parentName == "Tango" or parentName == "Monsters") and humanoid and humanoid.Health > 0 then
+                table.insert(enemies, v.Parent)
+                AddESP(v.Parent)
             end
         end
     end
 end
 
 function getRandomEnemy()
-    local validEnemies = {}
-    local validBosses = {}
-    
+    local enemies = {}
     for _, v in pairs(game:GetService("Workspace").NPCs:GetDescendants()) do
         if v.Name == "Head" and v.Parent and v.Parent.Parent then
             local parentName = v.Parent.Parent.Name
-            if (parentName == "Tango" or parentName == "Monsters" or IsBoss(parentName)) and v.Parent:FindFirstChild("Humanoid") and v.Parent.Humanoid.Health > 0 then
-                if IsBoss(parentName) then
-                    table.insert(validBosses, v)
-                else
-                    table.insert(validEnemies, v)
-                end
+            if (parentName == "Tango" or parentName == "Monsters") and v.Parent:FindFirstChild("Humanoid") and v.Parent.Humanoid.Health > 0 then
+                table.insert(enemies, v)
             end
         end
     end
-    return #validBosses > 0 and validBosses[math.random(1, #validBosses)] or (#validEnemies > 0 and validEnemies[math.random(1, #validEnemies)] or nil)
+    return #enemies > 0 and enemies[math.random(1, #enemies)] or nil
 end
 
 function focusOneEnemy()
-    local validEnemies = {}
-    local validBosses = {}
-    
+    local enemies = {}
     for _, v in pairs(game:GetService("Workspace").NPCs:GetDescendants()) do
         if v.Name == "Head" and v.Parent and v.Parent.Parent then
             local parentName = v.Parent.Parent.Name
-            if (parentName == "Tango" or parentName == "Monsters" or IsBoss(parentName)) and v.Parent:FindFirstChild("Humanoid") and v.Parent.Humanoid.Health > 0 then
-                if IsBoss(parentName) then
-                    table.insert(validBosses, v)
-                else
-                    table.insert(validEnemies, v)
-                end
+            if (parentName == "Tango" or parentName == "Monsters") and v.Parent:FindFirstChild("Humanoid") and v.Parent.Humanoid.Health > 0 then
+                table.insert(enemies, v)
             end
         end
     end
-    return #validBosses > 0 and validBosses[1] or (#validEnemies > 0 and validEnemies[1] or nil)
+    return #enemies > 0 and enemies[1] or nil
 end
 
 function attackTarget(target)
-    while target and target.Parent and target.Parent:FindFirstChild("Humanoid") and target.Parent.Humanoid.Health > 0 and autoFarm do
+    while target and target.Parent and target.Parent:FindFirstChild("Humanoid") and target.Parent.Humanoid.Health > 0 and _G.autoFarm do
         local tool = player.Character and player.Character:FindFirstChildOfClass("Tool")
         if tool and tool.Handle then
             local barrel = tool.Handle:FindFirstChild("Barrel")
@@ -196,18 +164,18 @@ function attackTarget(target)
 end
 
 function autoFarm()
-    while true do
+    while _G.autoFarm do
         wait(0.1)
 
-        if randomEnemyFarm and focusEnemy then
+        if _G.randomEnemyFarm and _G.focusEnemy then
             warn("AutoFarm will not work because both Random Enemy Farm and Focus Enemy are enabled!")
             return
         end
 
         local target = nil
-        if randomEnemyFarm then
+        if _G.randomEnemyFarm then
             target = getRandomEnemy()
-        elseif focusEnemy then
+        elseif _G.focusEnemy then
             target = focusOneEnemy()
         end
 
@@ -237,34 +205,33 @@ workspace.DescendantAdded:Connect(function(descendant)
     end
 end)
 
--- UI
 example:AddToggle("Auto Farm", function(state)
-    autoFarm = state
-    if autoFarm then
+    _G.autoFarm = state
+    if _G.autoFarm then
         spawn(monitorDamage)
         spawn(autoFarm)
     end
 end)
 
 example:AddToggle("Random Enemy Farm", function(state)
-    randomEnemyFarm = state
-    if randomEnemyFarm then
-        focusEnemy = false
+    _G.randomEnemyFarm = state
+    if _G.randomEnemyFarm then
+        _G.focusEnemy = false
     end
 end)
 
 example:AddToggle("Focus Enemy", function(state)
-    focusEnemy = state
-    if focusEnemy then
-        randomEnemyFarm = false
+    _G.focusEnemy = state
+    if _G.focusEnemy then
+        _G.randomEnemyFarm = false
     end
 end)
 
 example:AddToggle("Enemy Esp", function(state)
-    enemyEsp = state
-    if enemyEsp then
+    _G.enemyEsp = state
+    if state then
         spawn(function()
-            while enemyEsp do
+            while _G.enemyEsp do
                 UpdateEnemies()
                 task.wait(1)
             end
