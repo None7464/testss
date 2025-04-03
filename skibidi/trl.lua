@@ -4,9 +4,6 @@ local RunService = game:GetService("RunService")
 local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/None7464/testss/refs/heads/main/Gui.lua", true))()
 local example = library:CreateWindow({ text = "The Red Lake" })
 
-local lastDamage = 0
-local lastDamageTime = tick()
-
 spawn(function()
     local lastAmmoNotification = 0
     while true do
@@ -59,24 +56,6 @@ spawn(function()
     end
 end)
 
-function monitorDamage()
-    while _G.autoFarm do
-        task.wait(1)
-        local damageFrame = player.PlayerGui:FindFirstChild("Crosshair") and player.PlayerGui.Crosshair.Main.Frame:FindFirstChild("DamageStack")
-        if damageFrame and damageFrame:FindFirstChild("damage") then
-            local currentDamage = damageFrame.damage.Value
-            if currentDamage ~= lastDamage then
-                lastDamage = currentDamage
-                lastDamageTime = tick()
-            elseif tick() - lastDamageTime >= 2 then
-                _G.autoFarm = false
-                task.wait(0.5)
-                _G.autoFarm = true
-            end
-        end
-    end
-end
-
 local NPCsFolder = game:GetService("Workspace"):FindFirstChild("NPCs")
 local enemies = {}
 local highlights = {}
@@ -106,12 +85,12 @@ local function UpdateEnemies()
     end
 
     table.clear(enemies)
-    
+
     for _, v in pairs(NPCsFolder:GetDescendants()) do
         if v:IsA("Part") and v.Name == "Head" and v.Parent and v.Parent.Parent then
             local parentName = v.Parent.Parent.Name
             local humanoid = v.Parent:FindFirstChildOfClass("Humanoid")
-            
+
             if (parentName == "Tango" or parentName == "Monsters") and humanoid and humanoid.Health > 0 then
                 table.insert(enemies, v.Parent)
                 AddESP(v.Parent)
@@ -146,11 +125,15 @@ function focusOneEnemy()
     return #enemies > 0 and enemies[1] or nil
 end
 
-function attackTarget(target)
-    while target and target.Parent and target.Parent:FindFirstChild("Humanoid") and target.Parent.Humanoid.Health > 0 and _G.autoFarm do
-        local tool = player.Character and player.Character:FindFirstChildOfClass("Tool")
-        if tool and tool.Handle then
-            local barrel = tool.Handle:FindFirstChild("Barrel")
+function attackTarget(target) -- made it better? idk
+    if not target or not target.Parent or not target.Parent:FindFirstChild("Humanoid") or target.Parent.Humanoid.Health <= 0 then
+        return
+    end
+
+    local tool = player.Character and player.Character:FindFirstChildOfClass("Tool")
+    if tool and tool.Handle then
+        local barrel = tool.Handle:FindFirstChild("Barrel")
+        while _G.autoFarm and target and target.Parent and target.Parent:FindFirstChild("Humanoid") and target.Parent.Humanoid.Health > 0 do
             if barrel then
                 game:GetService("ReplicatedStorage").BulletReplication.ReplicateClient:Fire("MUZZLE", barrel)
                 game:GetService("ReplicatedStorage").BulletReplication.ReplicateClient:Fire("HIT", barrel, {[1] = target.Position, [3] = false, [4] = "Plastic"})
@@ -158,8 +141,8 @@ function attackTarget(target)
                 tool.Main:FireServer("DAMAGE", {[1] = target, [2] = target.Position, [3] = 10})
                 tool.Main:FireServer("AMMO")
             end
+            task.wait(0.1)
         end
-        wait(0.1)
     end
 end
 
@@ -179,9 +162,7 @@ function autoFarm()
             target = focusOneEnemy()
         end
 
-        if target then 
-            attackTarget(target) 
-        end
+        attackTarget(target)
     end
 end
 
@@ -208,9 +189,9 @@ end)
 example:AddToggle("Auto Farm", function(state)
     _G.autoFarm = state
     if _G.autoFarm then
-        spawn(monitorDamage)
         spawn(autoFarm)
     end
+    library:SaveSettings()
 end)
 
 example:AddToggle("Random Enemy Farm", function(state)
@@ -218,6 +199,7 @@ example:AddToggle("Random Enemy Farm", function(state)
     if _G.randomEnemyFarm then
         _G.focusEnemy = false
     end
+    library:SaveSettings()
 end)
 
 example:AddToggle("Focus Enemy", function(state)
@@ -225,6 +207,7 @@ example:AddToggle("Focus Enemy", function(state)
     if _G.focusEnemy then
         _G.randomEnemyFarm = false
     end
+    library:SaveSettings()
 end)
 
 example:AddToggle("Enemy Esp", function(state)
@@ -242,37 +225,11 @@ example:AddToggle("Enemy Esp", function(state)
         end
         highlights = {}
     end
-end)
-
-example:AddToggle("Stats UI", function(state)
-    stat = state 
-
-    if stat then
-        example1 = library:CreateWindow({ text = "Stats" })
-
-        local characterLabel = example1:AddLabel("Character: " .. player.Appearance.Outfits.Value)
-        local killStreakLabel = example1:AddLabel("KillStreak: " .. player.leaderstats.Streak.Value)
-        local cashLabel = example1:AddLabel("Cash: " .. player.leaderstats.Points.Value)
-
-        player.Appearance.Outfits.Changed:Connect(function()
-            characterLabel.Text = "Character: " .. player.Appearance.Outfits.Value
-        end)
-
-        player.leaderstats.Streak.Changed:Connect(function()
-            killStreakLabel.Text = "KillStreak: " .. player.leaderstats.Streak.Value
-        end)
-
-        player.leaderstats.Points.Changed:Connect(function()
-            cashLabel.Text = "Cash: " .. player.leaderstats.Points.Value
-        end)
-    else
-        if example1 then
-            example1:Destroy()
-            example1 = nil
-        end
-    end
+    library:SaveSettings()
 end)
 
 example:AddButton("Kill Ui", function()
     library:DestroyUI()
 end)
+
+library:LoadSettings()
