@@ -2,10 +2,13 @@ local library = {
     windowcount = 0
 }
 
+library.settingsFile = "Skibidi.json"
+local http = game:GetService("HttpService")
+
 local dragger = {}
 local resizer = {}
 
-do
+do -- still a bit off in mobile but if it works, never touch it
     local mouse = game:GetService("Players").LocalPlayer:GetMouse()
     local inputService = game:GetService("UserInputService")
     local heartbeat = game:GetService("RunService").Heartbeat
@@ -74,6 +77,30 @@ function library:Create(class, props)
 
     object.Parent = props.Parent
     return object
+end
+
+function library:LoadSettings()
+    if isfile(self.settingsFile) then
+        local data = readfile(self.settingsFile)
+        _G.settings = http:JSONDecode(data)
+    else
+        _G.settings = {}
+    end
+end
+
+-- Saves settings without overwriting
+function library:SaveSettings()
+    local existingSettings = {}
+
+    if isfile(self.settingsFile) then
+        existingSettings = http:JSONDecode(readfile(self.settingsFile))
+    end
+
+    for key, value in pairs(_G.settings) do
+        existingSettings[key] = value
+    end
+
+    writefile(self.settingsFile, http:JSONEncode(existingSettings))
 end
 
 function library:CreateWindow(options)
@@ -625,7 +652,14 @@ function library:CreateWindow(options)
             library.gui:Destroy()
             library.gui = nil
         end
-    end    
+    end
+
+    function window:Destroy()
+        if self.frame then
+            self.frame:Destroy()
+            self.frame = nil
+        end
+    end
 
     return window
 end
