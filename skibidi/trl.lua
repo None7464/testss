@@ -228,6 +228,35 @@ example:AddToggle("Enemy Esp", function(state)
     library:SaveSettings()
 end)
 
+example:AddToggle("Stats UI", function(state)
+    stat = state 
+
+    if stat then
+        example1 = library:CreateWindow({ text = "Stats" })
+
+        local characterLabel = example1:AddLabel("Character: " .. player.Appearance.Outfits.Value)
+        local killStreakLabel = example1:AddLabel("KillStreak: " .. player.leaderstats.Streak.Value)
+        local cashLabel = example1:AddLabel("Cash: " .. player.leaderstats.Points.Value)
+
+        player.Appearance.Outfits.Changed:Connect(function()
+            characterLabel.Text = "Character: " .. player.Appearance.Outfits.Value
+        end)
+
+        player.leaderstats.Streak.Changed:Connect(function()
+            killStreakLabel.Text = "KillStreak: " .. player.leaderstats.Streak.Value
+        end)
+
+        player.leaderstats.Points.Changed:Connect(function()
+            cashLabel.Text = "Cash: " .. player.leaderstats.Points.Value
+        end)
+    else
+        if example1 then
+            example1:Destroy()
+            example1 = nil
+        end
+    end
+end)
+
 example:AddButton("Kill Ui", function()
     library:DestroyUI()
 end)
