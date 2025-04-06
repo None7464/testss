@@ -9,7 +9,7 @@ local function load()
         library:DestroyUI()
     end)
 
-    UI:AddToggle("Private Server Version", function()
+    UI:AddToggle("W.I.P", function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/None7464/testss/main/scripts/scptrl/ps.lua", true))()
         wait()
         library:DestroyUI()
