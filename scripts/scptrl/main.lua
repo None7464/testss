@@ -68,7 +68,6 @@ local function checkExecutor()
 
 		-- // Misc Functions \--
 		["http_request"] = http_request or request or httprequest,
-		["isluau"] = function() return true end,
 		["writeclipboard"] = write_clipboard or writeclipboard or setclipboard or set_clipboard,
 		["queue_on_teleport"] = queue_on_teleport or queueonteleport,
 		["firesignal"] = fire_signal or firesignal,
