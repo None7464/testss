@@ -3,13 +3,13 @@ local function load()
 
     local UI = library:CreateWindow({ text = "The Red Lake Script" })
 
-    UI:AddToggle("Public Server Version", function()
+    UI:AddButton("Public Server Version", function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/None7464/testss/main/scripts/scptrl/public.lua"))()
         wait()
         library:DestroyUI()
     end)
 
-    UI:AddToggle("W.I.P", function()
+    UI:AddButton("W.I.P", function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/None7464/testss/main/scripts/scptrl/ps.lua"))()
         wait()
         library:DestroyUI()
