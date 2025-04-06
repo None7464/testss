@@ -91,6 +91,7 @@ local function checkExecutor()
 		})
 	elseif #issues == 0 then
 		load()
+		getgenv().__LOADER_USED = true
 	end
 end
 
