@@ -1,5 +1,5 @@
 local function load()
-    local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/None7464/testss/main/Ui-Lib/Gui.lua")()
+    local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/None7464/testss/main/Ui-Lib/Gui.lua"))()
 
     local UI = library:CreateWindow({ text = "The Red Lake Script" })
 
