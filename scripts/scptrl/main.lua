@@ -1,16 +1,16 @@
 local function load()
-    local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/None7464/testss/main/Ui-Lib/Gui.lua", true))()
+    local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/None7464/testss/main/Ui-Lib/Gui.lua")()
 
     local UI = library:CreateWindow({ text = "The Red Lake Script" })
 
     UI:AddToggle("Public Server Version", function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/None7464/testss/main/scripts/scptrl/public.lua", true))()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/None7464/testss/main/scripts/scptrl/public.lua"))()
         wait()
         library:DestroyUI()
     end)
 
     UI:AddToggle("W.I.P", function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/None7464/testss/main/scripts/scptrl/ps.lua", true))()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/None7464/testss/main/scripts/scptrl/ps.lua"))()
         wait()
         library:DestroyUI()
     end)
@@ -22,7 +22,7 @@ local function copyToClipboard(text)
     setclipboard(text)
 end
 
-local Notify = loadstring(game:HttpGet("https://raw.githubusercontent.com/None7464/testss/main/Ui-Lib/Notification.lua", true))()
+local Notify = loadstring(game:HttpGet("https://raw.githubusercontent.com/None7464/testss/main/Ui-Lib/Notification.lua"))()
 
 local function checkExecutor()
 	local issues = {}
