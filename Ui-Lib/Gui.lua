@@ -5,6 +5,8 @@ local library = {
 library.settingsFile = "Skibidi.json"
 local http = game:GetService("HttpService")
 
+library.settings = {}
+
 local dragger = {}
 local resizer = {}
 
@@ -81,26 +83,50 @@ end
 
 function library:LoadSettings()
     if isfile(self.settingsFile) then
-        local data = readfile(self.settingsFile)
-        _G.settings = http:JSONDecode(data)
+        local success, data = pcall(readfile, self.settingsFile)
+        if success then
+            local successDecode, decoded = pcall(http.JSONDecode, http, data)
+            if successDecode and type(decoded) == "table" then
+                self.settings = decoded
+            else
+                warn("Failed to decode settings. Using default.")
+                self.settings = {}
+            end
+        else
+            warn("Failed to read settings file.")
+            self.settings = {}
+        end
     else
-        _G.settings = {}
+        self.settings = {}
     end
 end
 
--- Saves settings without overwriting
 function library:SaveSettings()
-    local existingSettings = {}
+    local mergedSettings = {}
 
+    -- Safely read existing settings if the file exists
     if isfile(self.settingsFile) then
-        existingSettings = http:JSONDecode(readfile(self.settingsFile))
+        local success, data = pcall(readfile, self.settingsFile)
+        if success then
+            local successDecode, decoded = pcall(http.JSONDecode, http, data)
+            if successDecode and type(decoded) == "table" then
+                mergedSettings = decoded
+            end
+        end
     end
 
-    for key, value in pairs(_G.settings) do
-        existingSettings[key] = value
+    -- Merge the current settings
+    for key, value in pairs(self.settings) do
+        mergedSettings[key] = value
     end
 
-    writefile(self.settingsFile, http:JSONEncode(existingSettings))
+    -- Encode and write the final result
+    local success, encoded = pcall(http.JSONEncode, http, mergedSettings)
+    if success then
+        pcall(writefile, self.settingsFile, encoded)
+    else
+        warn("Failed to encode settings.")
+    end
 end
 
 function library:CreateWindow(options)
@@ -663,5 +689,4 @@ function library:CreateWindow(options)
 
     return window
 end
-
 return library
