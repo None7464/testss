@@ -35,10 +35,20 @@ local function getContainer()
 
 	container = Instance.new("Frame")
 	container.Name = "NotificationContainer"
-	container.Size = UDim2.new(1, 0, 1, 0)
+	container.Size = UDim2.new(0, 320, 1, 0)
+	container.Position = UDim2.new(1, -330, 0, 60) -- top right, under the top bar
 	container.BackgroundTransparency = 1
-	container.Position = UDim2.new(0, 0, 0, 0)
+	container.AnchorPoint = Vector2.new(0, 0)
+	container.AutomaticSize = Enum.AutomaticSize.Y
 	container.Parent = screenGui
+
+	local layout = Instance.new("UIListLayout")
+	layout.FillDirection = Enum.FillDirection.Vertical
+	layout.Padding = UDim.new(0, 6)
+	layout.HorizontalAlignment = Enum.HorizontalAlignment.Right
+	layout.VerticalAlignment = Enum.VerticalAlignment.Top
+	layout.SortOrder = Enum.SortOrder.LayoutOrder
+	layout.Parent = container
 
 	return container
 end
@@ -47,54 +57,52 @@ local function buildNotificationFrame(alertType, message)
 	local container = getContainer()
 
 	local frame = Instance.new("Frame")
-	frame.Size = UDim2.new(0, 300, 0, 50)
-	frame.Position = UDim2.new(1, 20, 1, -80)
-	frame.BackgroundColor3 = alertType.Color
+	frame.Size = UDim2.new(1, 0, 0, 60)
+	frame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
 	frame.BorderSizePixel = 0
 	frame.Name = "Notification"
-	frame.AnchorPoint = Vector2.new(1, 1)
+	frame.AutomaticSize = Enum.AutomaticSize.Y
 	frame.ClipsDescendants = true
-	frame.AutomaticSize = Enum.AutomaticSize.X
+	frame.LayoutOrder = os.clock() -- newer ones on bottom
 	frame.Parent = container
 
-	Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 10)
+	Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 6)
 
-	-- Layout and padding
 	local layout = Instance.new("UIListLayout")
 	layout.FillDirection = Enum.FillDirection.Horizontal
-	layout.HorizontalAlignment = Enum.HorizontalAlignment.Left
 	layout.VerticalAlignment = Enum.VerticalAlignment.Center
-	layout.SortOrder = Enum.SortOrder.LayoutOrder
-	layout.Padding = UDim.new(0, 8)
+	layout.Padding = UDim.new(0, 10)
 	layout.Parent = frame
 
 	local padding = Instance.new("UIPadding")
+	padding.PaddingTop = UDim.new(0, 6)
+	padding.PaddingBottom = UDim.new(0, 6)
 	padding.PaddingLeft = UDim.new(0, 10)
 	padding.PaddingRight = UDim.new(0, 10)
 	padding.Parent = frame
 
-	local icon = Instance.new("TextLabel")
-	icon.Text = alertType.Emoji
-	icon.Font = Enum.Font.Gotham
-	icon.TextSize = 20
-	icon.TextColor3 = Color3.new(1, 1, 1)
-	icon.BackgroundTransparency = 1
-	icon.Size = UDim2.new(0, 24, 0, 24)
-	icon.LayoutOrder = 1
-	icon.TextXAlignment = Enum.TextXAlignment.Center
-	icon.TextYAlignment = Enum.TextYAlignment.Center
-	icon.Parent = frame	
+	local emoji = Instance.new("TextLabel")
+	emoji.Text = alertType.Emoji
+	emoji.Font = Enum.Font.GothamBold
+	emoji.TextSize = 24
+	emoji.TextColor3 = alertType.Color
+	emoji.BackgroundTransparency = 1
+	emoji.Size = UDim2.new(0, 30, 0, 30)
+	emoji.LayoutOrder = 1
+	emoji.Parent = frame
 
 	local label = Instance.new("TextLabel")
 	label.Text = message
-	label.Font = Enum.Font.GothamBold
-	label.TextSize = 16
+	label.Font = Enum.Font.Gotham
+	label.TextWrapped = true
+	label.TextSize = 14
 	label.TextColor3 = Color3.new(1, 1, 1)
 	label.BackgroundTransparency = 1
-	label.Size = UDim2.new(1, -120, 1, 0)
+	label.Size = UDim2.new(1, -80, 0, 30)
 	label.TextXAlignment = Enum.TextXAlignment.Left
+	label.TextYAlignment = Enum.TextYAlignment.Top
 	label.LayoutOrder = 2
-	label.AutomaticSize = Enum.AutomaticSize.X
+	label.AutomaticSize = Enum.AutomaticSize.Y
 	label.Parent = frame
 
 	local closeBtn = Instance.new("TextButton")
@@ -102,13 +110,20 @@ local function buildNotificationFrame(alertType, message)
 	closeBtn.Font = Enum.Font.Gotham
 	closeBtn.TextSize = 16
 	closeBtn.TextColor3 = Color3.new(1, 1, 1)
-	closeBtn.Size = UDim2.new(0, 30, 0, 30)
+	closeBtn.Size = UDim2.new(0, 24, 0, 24)
 	closeBtn.BackgroundTransparency = 1
 	closeBtn.LayoutOrder = 3
 	closeBtn.Parent = frame
 
 	closeBtn.MouseButton1Click:Connect(function()
 		frame:Destroy()
+	end)
+
+	-- Optional auto-remove after 5 seconds
+	task.delay(5, function()
+		if frame and frame.Parent then
+			frame:Destroy()
+		end
 	end)
 
 	return frame
