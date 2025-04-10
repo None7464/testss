@@ -98,7 +98,7 @@ local function buildNotificationFrame(alertType, message)
 	label.Parent = frame
 
 	local closeBtn = Instance.new("TextButton")
-	closeBtn.Text = "✕"
+	closeBtn.Text = "X"
 	closeBtn.Font = Enum.Font.Gotham
 	closeBtn.TextSize = 16
 	closeBtn.TextColor3 = Color3.new(1, 1, 1)
