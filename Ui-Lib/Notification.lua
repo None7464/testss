@@ -8,17 +8,17 @@ local padding = 10
 local container
 
 local AlertStyles = {
-	Info = {
+	Info = { -- ℹ️ Info
 		Color = Color3.fromRGB(59, 130, 246),
-		Icon = "rbxassetid://6035047409"
+		Emoji = "ℹ️"
 	},
-	Error = {
+	Error = { -- ❗ Error
 		Color = Color3.fromRGB(239, 68, 68),
-		Icon = "rbxassetid://6035047377"
+		Emoji = "❗"
 	},
-	Success = {
+	Success = { -- ✔️ Success
 		Color = Color3.fromRGB(34, 197, 94),
-		Icon = "rbxassetid://6035047397"
+		Emoji = "✔️"
 	}
 }
 
@@ -57,16 +57,33 @@ local function buildNotificationFrame(alertType, message)
 	frame.AutomaticSize = Enum.AutomaticSize.X
 	frame.Parent = container
 
-	local corner = Instance.new("UICorner", frame)
-	corner.CornerRadius = UDim.new(0, 10)
+	Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 10)
 
-	local icon = Instance.new("ImageLabel")
-	icon.Size = UDim2.new(0, 24, 0, 24)
-	icon.Position = UDim2.new(0, 10, 0.5, -12)
+	-- Layout and padding
+	local layout = Instance.new("UIListLayout")
+	layout.FillDirection = Enum.FillDirection.Horizontal
+	layout.HorizontalAlignment = Enum.HorizontalAlignment.Left
+	layout.VerticalAlignment = Enum.VerticalAlignment.Center
+	layout.SortOrder = Enum.SortOrder.LayoutOrder
+	layout.Padding = UDim.new(0, 8)
+	layout.Parent = frame
+
+	local padding = Instance.new("UIPadding")
+	padding.PaddingLeft = UDim.new(0, 10)
+	padding.PaddingRight = UDim.new(0, 10)
+	padding.Parent = frame
+
+	local icon = Instance.new("TextLabel")
+	icon.Text = alertType.Emoji
+	icon.Font = Enum.Font.Gotham
+	icon.TextSize = 20
+	icon.TextColor3 = Color3.new(1, 1, 1)
 	icon.BackgroundTransparency = 1
-	icon.Image = alertType.Icon
-	icon.ImageColor3 = Color3.new(1, 1, 1)
-	icon.Parent = frame
+	icon.Size = UDim2.new(0, 24, 0, 24)
+	icon.LayoutOrder = 1
+	icon.TextXAlignment = Enum.TextXAlignment.Center
+	icon.TextYAlignment = Enum.TextYAlignment.Center
+	icon.Parent = frame	
 
 	local label = Instance.new("TextLabel")
 	label.Text = message
@@ -74,9 +91,10 @@ local function buildNotificationFrame(alertType, message)
 	label.TextSize = 16
 	label.TextColor3 = Color3.new(1, 1, 1)
 	label.BackgroundTransparency = 1
-	label.Position = UDim2.new(0, 44, 0, 0)
-	label.Size = UDim2.new(1, -80, 1, 0)
+	label.Size = UDim2.new(1, -120, 1, 0)
 	label.TextXAlignment = Enum.TextXAlignment.Left
+	label.LayoutOrder = 2
+	label.AutomaticSize = Enum.AutomaticSize.X
 	label.Parent = frame
 
 	local closeBtn = Instance.new("TextButton")
@@ -85,8 +103,8 @@ local function buildNotificationFrame(alertType, message)
 	closeBtn.TextSize = 16
 	closeBtn.TextColor3 = Color3.new(1, 1, 1)
 	closeBtn.Size = UDim2.new(0, 30, 0, 30)
-	closeBtn.Position = UDim2.new(1, -35, 0.5, -15)
 	closeBtn.BackgroundTransparency = 1
+	closeBtn.LayoutOrder = 3
 	closeBtn.Parent = frame
 
 	closeBtn.MouseButton1Click:Connect(function()
