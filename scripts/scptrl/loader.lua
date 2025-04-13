@@ -5,13 +5,13 @@ local function load()
 
     UI:AddButton("Public Server Version", function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/None7464/testss/main/scripts/scptrl/public.lua"))()
-        wait()
+        wait(1)
         library:DestroyUI()
     end)
 
-    UI:AddButton("W.I.P", function()
+    UI:AddButton("Private Server Version", function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/None7464/testss/main/scripts/scptrl/ps.lua"))()
-        wait()
+        wait(1)
         library:DestroyUI()
     end)
 end
