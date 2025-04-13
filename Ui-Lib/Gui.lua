@@ -293,20 +293,7 @@ function library:CreateWindow(options)
     
     function window:AddToggle(text, callback, defaultState)
         self.count = self.count + 1
-    
-        -- Ensure callback is a function
-        if typeof(callback) ~= "function" then
-            warn("⚠️ Callback is NOT a function! Fixing it.")
-            callback = function() end
-        end
-    
-        -- Ensure defaultState is boolean (fixing the nil issue)
-        if typeof(defaultState) ~= "boolean" then
-            warn("⚠️ Default state is NIL! Setting it to FALSE by default.")
-            defaultState = false
-        end
-    
-        print("🛠 Initializing Toggle:", text, "| Callback Type:", typeof(callback), "| Default State Type:", typeof(defaultState), "| Value:", defaultState)
+        defaultState = defaultState or false
     
         local label = library:Create("TextLabel", {
             Text = text,
@@ -331,23 +318,17 @@ function library:CreateWindow(options)
             Parent = label
         })
     
-        -- Store toggle state correctly
         self.toggles[text] = defaultState
     
         button.MouseButton1Click:Connect(function()
-            self.toggles[text] = not self.toggles[text] -- Toggle the value
-            button.Text = self.toggles[text] and "ON" or "OFF"
-            button.TextColor3 = self.toggles[text] and Color3.fromRGB(0, 255, 140) or Color3.fromRGB(255, 25, 25)
+            local state = not self.toggles[text]
+            self.toggles[text] = state
+            button.Text = state and "ON" or "OFF"
+            button.TextColor3 = state and Color3.fromRGB(0, 255, 140) or Color3.fromRGB(255, 25, 25)
     
-            print("🔍 DEBUG: Callback type:", typeof(callback))
-            print("🔍 DEBUG: Toggle state:", self.toggles[text])
-    
-            if typeof(callback) ~= "function" then
-                warn("🚨 Callback became invalid! Resetting to an empty function.")
-                callback = function() end -- Ensure it's always callable
+            if callback then
+                callback(state)
             end
-            
-            callback(self.toggles[text]) -- Now this can NEVER cause an error
         end)
     
         self:Resize()
