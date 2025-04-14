@@ -94,4 +94,12 @@ local function checkExecutor()
 	end
 end
 
+local VirtualUser = game:GetService("VirtualUser")
+local Players = game:GetService("Players")
+
+Players.LocalPlayer.Idled:Connect(function()
+    VirtualUser:CaptureController()
+    VirtualUser:ClickButton2(Vector2.new(0, 0))
+end)
+
 checkExecutor()
