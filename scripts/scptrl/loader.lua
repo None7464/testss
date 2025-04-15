@@ -4,13 +4,13 @@ local function load()
 	local publicScript = game:HttpGet("https://raw.githubusercontent.com/None7464/testss/main/scripts/scptrl/public.lua", true)
 	
 	if _G.StopAutoExecute then
-		getgenv().last_used_script = nil
+		library.settings.last_used_script = nil
 		library:SaveSettings()
 	end
 	
 	library:LoadSettings()
+	local savedScript = library.settings.last_used_script
 	
-	local savedScript = getgenv().last_used_script
 	
 	if not _G.StopAutoExecute then -- auto execute
 		if savedScript == "private" then
@@ -26,17 +26,17 @@ local function load()
 	
 	UI:AddButton("Public Server Version", function()
 		loadstring(publicScript)()
-		getgenv().last_used_script = "public"
+		library.settings.last_used_script = "public"
 		library:SaveSettings()
 		library:DestroyUI()
 	end)
 	
 	UI:AddButton("Private Server Version", function()
 		loadstring(privateScript)()
-		getgenv().last_used_script = "private"
+		library.settings.last_used_script = "private"
 		library:SaveSettings()
 		library:DestroyUI()
-	end)	
+	end)
 end
 
 local HttpService = game:GetService("HttpService")
