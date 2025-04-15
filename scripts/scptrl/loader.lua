@@ -48,7 +48,9 @@ local function load()
 end
 
 local HttpService = game:GetService("HttpService")
-
+for _, v in pairs(getconnections(game.Players.LocalPlayer.Idled)) do
+    v:Disable()
+end
 local function copyToClipboard(text)
     setclipboard(text)
 end
