@@ -1,19 +1,48 @@
 local function load()
-    local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/None7464/testss/main/Ui-Lib/Gui.lua"))()
-
-    local UI = library:CreateWindow({ text = "The Red Lake Script" })
-
-    UI:AddButton("Public Server Version", function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/None7464/testss/main/scripts/scptrl/public.lua"))()
-        wait(1)
-        library:DestroyUI()
-    end)
-
-    UI:AddButton("Private Server Version", function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/None7464/testss/main/scripts/scptrl/ps.lua"))()
-        wait(1)
-        library:DestroyUI()
-    end)
+	local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/None7464/testss/main/Ui-Lib/Gui.lua", true))()
+	local privateScript = game:HttpGet("https://raw.githubusercontent.com/None7464/testss/main/scripts/scptrl/ps.lua", true)
+	local publicScript = game:HttpGet("https://raw.githubusercontent.com/None7464/testss/main/scripts/scptrl/public.lua", true)
+	
+	if _G.StopAutoExecute then
+		getgenv().last_used_script = nil
+		library:SaveSettings()
+	end
+	
+	library:LoadSettings()
+	
+	local savedScript = getgenv().last_used_script
+	
+	if not _G.StopAutoExecute then
+		if savedScript == "private" then
+			loadstring(privateScript)()
+		elseif savedScript == "public" then
+			loadstring(publicScript)()
+		end
+	
+		if not _G.auto_executed then
+			_G.auto_executed = true
+			local scriptToQueue = savedScript == "private" and privateScript or publicScript
+			if scriptToQueue then
+				queue_on_teleport("loadstring([[" .. scriptToQueue .. "]])()")
+			end
+		end
+	end
+	
+	local UI = library:CreateWindow({ text = "The Red Lake Script" })
+	
+	UI:AddButton("Public Server Version", function()
+		loadstring(publicScript)()
+		getgenv().last_used_script = "public"
+		library:SaveSettings()
+		library:DestroyUI()
+	end)
+	
+	UI:AddButton("Private Server Version", function()
+		loadstring(privateScript)()
+		getgenv().last_used_script = "private"
+		library:SaveSettings()
+		library:DestroyUI()
+	end)	
 end
 
 local HttpService = game:GetService("HttpService")
@@ -22,7 +51,7 @@ local function copyToClipboard(text)
     setclipboard(text)
 end
 
-local Notify = loadstring(game:HttpGet("https://raw.githubusercontent.com/None7464/testss/main/Ui-Lib/Notification.lua"))()
+local Notify = loadstring(game:HttpGet("https://raw.githubusercontent.com/None7464/testss/main/Ui-Lib/Notification.lua", true))()
 
 local function checkExecutor()
 	local issues = {}
@@ -68,6 +97,7 @@ local function checkExecutor()
 
 		-- // Misc Functions \--
 		["http_request"] = http_request or request or httprequest,
+		["isluau"] = function() return true end,
 		["writeclipboard"] = write_clipboard or writeclipboard or setclipboard or set_clipboard,
 		["queue_on_teleport"] = queue_on_teleport or queueonteleport,
 		["firesignal"] = fire_signal or firesignal,
@@ -93,13 +123,5 @@ local function checkExecutor()
 		getgenv().__LOADER_USED = true
 	end
 end
-
-local VirtualUser = game:GetService("VirtualUser")
-local Players = game:GetService("Players")
-
-Players.LocalPlayer.Idled:Connect(function()
-    VirtualUser:CaptureController()
-    VirtualUser:ClickButton2(Vector2.new(0, 0))
-end)
 
 checkExecutor()
