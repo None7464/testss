@@ -12,19 +12,13 @@ local function load()
 	
 	local savedScript = getgenv().last_used_script
 	
-	if not _G.StopAutoExecute then
+	if not _G.StopAutoExecute then -- auto execute
 		if savedScript == "private" then
 			loadstring(privateScript)()
+			getgenv().__LOADER_USED = true
 		elseif savedScript == "public" then
 			loadstring(publicScript)()
-		end
-	
-		if not _G.auto_executed then
-			_G.auto_executed = true
-			local scriptToQueue = savedScript == "private" and privateScript or publicScript
-			if scriptToQueue then
-				queue_on_teleport("loadstring([[" .. scriptToQueue .. "]])()")
-			end
+			getgenv().__LOADER_USED = true
 		end
 	end
 	
