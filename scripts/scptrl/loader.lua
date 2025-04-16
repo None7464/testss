@@ -17,10 +17,8 @@ local function load()
     if not _G.StopAutoExecute then -- auto execute
         if savedScript == "private" then
             loadstring(privateScript)()
-            getgenv().__LOADER_USED = true
         elseif savedScript == "public" then
             loadstring(publicScript)()
-            getgenv().__LOADER_USED = true
         end
     end
 
@@ -46,6 +44,8 @@ local function load()
         end
     )
 end
+
+getgenv().__LOADER_USED = true
 
 local HttpService = game:GetService("HttpService")
 for _, v in pairs(getconnections(game.Players.LocalPlayer.Idled)) do
@@ -128,7 +128,6 @@ local function checkExecutor()
         )
     elseif #issues == 0 then
         load()
-        getgenv().__LOADER_USED = true
     end
 end
 
