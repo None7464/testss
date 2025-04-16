@@ -31,11 +31,9 @@ local function load()
     
     if not _G.StopAutoExecute then
         if savedScript == "private" then
-            library:DestroyUI()
             loadstring(privateScript)()
             return
         elseif savedScript == "public" then
-            library:DestroyUI()
             loadstring(publicScript)()
             return
         end
