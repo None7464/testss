@@ -1,6 +1,3 @@
--- Ability.lua
--- Holds all abilities and their cooldowns
-
 local Ability = {}
 
 Ability.Abilities = {
