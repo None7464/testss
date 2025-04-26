@@ -1,0 +1,477 @@
+local Ability = {}
+
+Ability.Abilities = {
+    Hunt = {
+        Cooldown = 60
+    },
+    Terminate = {
+        Cooldown = 20
+    },
+    HellShoot = {
+        Cooldown = 20
+    },
+    HellFireballs = {
+        Cooldown = 20
+    },
+    HellSlam = {
+        Cooldown = 20
+    },
+    BreakEmDown = {
+        Cooldown = 30
+    },
+    Relentless = {
+        Cooldown = 55
+    },
+    GuardUp = {
+        Cooldown = 45
+    },
+    HellSpin = {
+        Cooldown = 20
+    },
+    MillionStab = {
+        Cooldown = 45
+    },
+    Travel = {
+        Cooldown = 60
+    },
+    TakeSoul = {
+        Cooldown = 30
+    },
+    DualBeast = {
+        Cooldown = 70
+    },
+    Spears = {
+        Cooldown = 1
+    },
+    InfAmmo = {
+        Cooldown = 90
+    },
+    Poof = {
+        Cooldown = 0
+    },
+    DashForward = {
+        Cooldown = 0
+    },
+    Eradicate = {
+        Cooldown = 120
+    },
+    StickyBomb = {
+        Cooldown = 60
+    },
+    SprayPray = {
+        Cooldown = 60
+    },
+    Execute = {
+        Cooldown = 100
+    },
+    StepBack = {
+        Cooldown = 60
+    },
+    Sense = {
+        Cooldown = 60
+    },
+    ScreamHog = {
+        Cooldown = 60
+    },
+    HeadshotSpree = {
+        Cooldown = 60
+    },
+    PointOut = {
+        Cooldown = 60
+    },
+    ShootDown = {
+        Cooldown = 30
+    },
+    FirstAid = {
+        Cooldown = 30
+    },
+    CallHeli = {
+        Cooldown = 240
+    },
+    Rally = {
+        Cooldown = 300
+    },
+    Impulse = {
+        Cooldown = 40
+    },
+    DeathBullet = {
+        Cooldown = 60
+    },
+    A10 = {
+        Cooldown = 120,
+        GlobalCooldown = 140
+    },
+    ReverseEngineering = {
+        Cooldown = 240
+    },
+    CallToWork = {
+        Cooldown = 80
+    },
+    Firefight = {
+        Cooldown = 360,
+        GlobalCooldown = 360
+    },
+    FrontlineSupport = {
+        Cooldown = 300
+    },
+    ArtilleryStrike = {
+        Cooldown = 300,
+        GlobalCooldown = 300
+    },
+    TemporaryBackup = {
+        Cooldown = 220
+    },
+    Banish = {
+        Cooldown = 1
+    },
+    DoFocus = {
+        Cooldown = 60
+    },
+    Spin = {
+        Cooldown = 15
+    },
+    SmokeShells = {
+        Cooldown = 100,
+        GlobalCooldown = 300
+    },
+    ChargeUp = {
+        Cooldown = 25
+    },
+    Slam = {
+        Cooldown = 15
+    },
+    RapidResponse = {
+        Cooldown = 70
+    },
+    ShootMagma = {
+        Cooldown = 25
+    },
+    LavaCrush = {
+        Cooldown = 30
+    },
+    InfernoBeam = {
+        Cooldown = 30
+    },
+    ThrowUp = {
+        Cooldown = 90
+    },
+    Doomsday = {
+        Cooldown = 300
+    },
+    ReflexShoot = {
+        Cooldown = 30
+    },
+    ShootIce = {
+        Cooldown = 30
+    },
+    IceSmash = {
+        Cooldown = 30
+    },
+    ColdBreath = {
+        Cooldown = 30
+    },
+    FrostLaser = {
+        Cooldown = 30
+    },
+    SummonIce = {
+        Cooldown = 30
+    },
+    Blizzard = {
+        Cooldown = 120
+    },
+    ClusterNade = {
+        Cooldown = 30
+    },
+    PlaceHE = {
+        Cooldown = 30
+    },
+    ThrowMolotov = {
+        Cooldown = 30
+    },
+    ThrowPipebomb = {
+        Cooldown = 30
+    },
+    WorldOnFire = {
+        Cooldown = 120
+    },
+    AdrenalineRusher = {
+        Cooldown = 90
+    },
+    ShadyDeal = {
+        Cooldown = 80,
+        GlobalCooldown = 300
+    },
+    TransAm = {
+        Cooldown = 30
+    },
+    NineTailedFox = {
+        Cooldown = 180,
+        GlobalCooldown = 400
+    },
+    HellfireStorm = {
+        Cooldown = 20
+    },
+    HammerShockwave = {
+        Cooldown = 25
+    },
+    Vanish = {
+        Cooldown = 30
+    },
+    Rupture = {
+        Cooldown = 15
+    },
+    Invigorate = {
+        Cooldown = 90
+    },
+    Force = {
+        Cooldown = 15
+    },
+    Telekinesis = {
+        Cooldown = 10
+    },
+    BoneRise = {
+        Cooldown = 10
+    },
+    DustFireball = {
+        Cooldown = 15
+    },
+    DustSpears = {
+        Cooldown = 20
+    },
+    TridentThrow = {
+        Cooldown = 30
+    },
+    DeepFocus = {
+        Cooldown = 90
+    },
+    SharpnelShot = {
+        Cooldown = 15
+    },
+    BulletHell = {
+        Cooldown = 120
+    },
+    SuppressiveFire = {
+        Cooldown = 48
+    },
+    DeployAmmo = {
+        Cooldown = 120
+    },
+    RunAndGun = {
+        Cooldown = 90
+    },
+    Heal = {
+        Cooldown = 5
+    },
+    Teleport1 = {
+        Cooldown = 10
+    },
+    Teleport2 = {
+        Cooldown = 10
+    },
+    Chain = {
+        Cooldown = 5
+    },
+    Tornado = {
+        Cooldown = 15
+    },
+    PlasmaBall = {
+        Cooldown = 20
+    },
+    PoisonTreatment = {
+        Cooldown = 30
+    },
+    PlacePoisonCure = {
+        Cooldown = 80
+    },
+    GasGrenade = {
+        Cooldown = 30
+    },
+    ToxicRounds = {
+        Cooldown = 60
+    },
+    Adrenaline = {
+        Cooldown = 5
+    },
+    JesuseBlessing = {
+        Cooldown = 180
+    },
+    MafiaCall = {
+        Cooldown = 120
+    },
+    CoinFlip = {
+        Cooldown = 10
+    },
+    RandomAirdrop = {
+        Cooldown = 120
+    },
+    MysteryBomb = {
+        Cooldown = 25
+    },
+    LuckyTicket = {
+        Cooldown = 30
+    },
+    StatRoll = {
+        Cooldown = 90
+    },
+    S40 = {
+        Cooldown = 30
+    },
+    Scattershot = {
+        Cooldown = 75
+    },
+    BraceUp = {
+        Cooldown = 1
+    },
+    DeadlyRush = {
+        Cooldown = 1
+    },
+    ShortBreather = {
+        Cooldown = 15
+    },
+    BulldozerTime = {
+        Cooldown = 120
+    },
+    Takedown = {
+        Cooldown = 60
+    },
+    Miasma = {
+        Cooldown = 45
+    },
+    RelentlessAssault = {
+        Cooldown = 90
+    },
+    HeavyResponse = {
+        Cooldown = 60
+    },
+    HunkerDown = {
+        Cooldown = 120
+    },
+    Dropkick = {
+        Cooldown = 15
+    },
+    UIUHorde = {
+        Cooldown = 30
+    },
+    UIUBlessing = {
+        Cooldown = 30
+    },
+    Inspire = {
+        Cooldown = 90
+    },
+    Lightning = {
+        Cooldown = 3
+    },
+    Combustion = {
+        Cooldown = 5
+    },
+    Protection = {
+        Cooldown = 15
+    },
+    Mutilation = {
+        Cooldown = 5
+    },
+    Daze = {
+        Cooldown = 20
+    },
+    Smog = {
+        Cooldown = 45
+    },
+    ZapTrap = {
+        Cooldown = 60
+    },
+    DisruptionField = {
+        Cooldown = 45
+    },
+    TagTeam = {
+        Cooldown = 45
+    },
+    GlobalAid = {
+        Cooldown = 6
+    },
+    Messiah = {
+        Cooldown = 60
+    },
+    Intervention = {
+        Cooldown = 30
+    },
+    ReflectiveGuard = {
+        Cooldown = 90
+    },
+    Blink = {
+        Cooldown = 7
+    },
+    BearTrap = {
+        Cooldown = 3
+    },
+    HotDog = {
+        Cooldown = 15
+    },
+    Hunger = {
+        Cooldown = 80
+    },
+    BoneHell = {
+        Cooldown = 25
+    },
+    BoneRain = {
+        Cooldown = 30
+    },
+    FireNuke = {
+        Cooldown = 15
+    },
+    Shockwave = {
+        Cooldown = 15
+    },
+    SpaceMist = {
+        Cooldown = 15
+    },
+    Recover = {
+        Cooldown = 15
+    },
+    Shield = {
+        Cooldown = 15
+    },
+    HoldOut = {
+        Cooldown = 60
+    },
+    Advance = {
+        Cooldown = 60
+    },
+    FocusFire = {
+        Cooldown = 60
+    },
+    BulletRain = {
+        Cooldown = 30
+    },
+    Breakround = {
+        Cooldown = 30
+    },
+    ArmorRestructure = {
+        Cooldown = 90
+    },
+    SupplyDrop = {
+        Cooldown = 60
+    },
+    FistSlam = {
+        Cooldown = 0.3
+    },
+    Pull = {
+        Cooldown = 3
+    },
+    HeadhunterRitual = {
+        Cooldown = 90
+    },
+    Haunting = {
+        Cooldown = 1
+    },
+    DeadMansParade = {
+        Cooldown = 1
+    },
+    SootheTheDead = {
+        Cooldown = 60
+    },
+    SoulSteal = {
+        Cooldown = 30
+    }
+}
+
+return Ability
