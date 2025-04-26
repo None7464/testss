@@ -1,0 +1,14 @@
+local codes = {
+    "EasterUpdate",
+    "Breach!",
+    "NEWEvent!",
+    "SuperSecretCode!!",
+    "UpdFIXES",
+    "BestNEWUpdate!!",
+    "QolUpdate",
+    "NewSecretPortals",
+    "MoreUIReworks",
+    "SuperSecretCode"
+}
+
+return codes
