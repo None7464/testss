@@ -1,55 +1,18 @@
 local function load()
-    local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/None7464/testss/main/Ui-Lib/Gui.lua", true))()
-    local privateScript = game:HttpGet("https://raw.githubusercontent.com/None7464/testss/main/scripts/scptrl/ps.lua", true)
-    local publicScript = game:HttpGet("https://raw.githubusercontent.com/None7464/testss/main/scripts/scptrl/public.lua", true)
-    
-    if _G.StopAutoExecute then
-        library.settings.last_used_script = nil
-        library:SaveSettings()
-    end
-    
-    library:LoadSettings()
-    local savedScript = library.settings.last_used_script
-    
-    local function LoadUI()
-        local UI = library:CreateWindow({text = "The Red Lake Script"})
-    
-        UI:AddButton("Public Server Version", function()
-            loadstring(publicScript)()
-            library.settings.last_used_script = "public"
-            library:SaveSettings()
-            library:DestroyUI()
-        end)
-    
-        UI:AddButton("Private Server Version", function()
-            loadstring(privateScript)()
-            library.settings.last_used_script = "private"
-            library:SaveSettings()
-            library:DestroyUI()
-        end)
-    end
-    
-    if not _G.StopAutoExecute then
-        if savedScript == "private" then
-            loadstring(privateScript)()
-            return
-        elseif savedScript == "public" then
-            loadstring(publicScript)()
-            return
-        end
-    end
-    
-    if library.settings.last_used_script == nil then
-        LoadUI()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/None7464/testss/main/scripts/scptrl/public.lua"))()
+    local queueonteleport = queue_on_teleport or syn.queue_on_teleport
+
+    if queue_on_teleport then
+        queue_on_teleport(game:HttpGet("https://raw.githubusercontent.com/None7464/testss/main/scripts/scptrl/public.lua")
     end
 end
 
-getgenv().__LOADER_USED = true
-
 local HttpService = game:GetService("HttpService")
+
 for _, v in pairs(getconnections(game.Players.LocalPlayer.Idled)) do
     v:Disable()
 end
+
 local function copyToClipboard(text)
     setclipboard(text)
 end
