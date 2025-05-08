@@ -3,7 +3,7 @@ local function load()
     local queueonteleport = queue_on_teleport or syn.queue_on_teleport
 
     if queue_on_teleport then
-        queue_on_teleport(game:HttpGet("https://raw.githubusercontent.com/None7464/testss/main/scripts/scptrl/public.lua")
+        queue_on_teleport(game:HttpGet("https://raw.githubusercontent.com/None7464/testss/main/scripts/scptrl/public.lua"))
     end
 end
 
