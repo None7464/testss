@@ -13,6 +13,26 @@ for _, v in pairs(getconnections(game.Players.LocalPlayer.Idled)) do
     v:Disable()
 end
 
+local workspace = game:GetService("Workspace")
+
+local function updatePrompts()
+    for _, v in ipairs(workspace:GetDescendants()) do
+        if v:IsA("ProximityPrompt") then
+            v.HoldDuration = 0
+        end
+    end
+end
+
+if #workspace:GetDescendants() > 0 then
+    updatePrompts()
+end
+
+workspace.DescendantAdded:Connect(function(descendant)
+    if descendant:IsA("ProximityPrompt") then
+        descendant.HoldDuration = 0
+    end
+end)
+
 local function copyToClipboard(text)
     setclipboard(text)
 end
