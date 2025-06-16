@@ -359,28 +359,6 @@ BuyAmountDropdown.ZIndex = 4
 local dupeBox = makeSettingBox("Dupe Per Second:", SpeedBox, settingsY+0)
 local buyBox = makeSettingBox("Buy Amount:", BuyAmountDropdown, settingsY+48)
 
-if Toggle then Toggle:Destroy() end
-Toggle = Instance.new("TextButton", Scroll)
-Toggle.Size = UDim2.new(0, 170, 0, rowh)
-Toggle.Position = UDim2.new(0, col2x, 0, 260)
-Toggle.Text = "▶ Start Auto Dupe"
-styleBtn(Toggle, Color3.fromRGB(50, 50, 80))
-Toggle.MouseButton1Click:Connect(function()
-    running = not running
-    Toggle.Text = running and "⏸ Stop Auto Dupe" or "▶ Start Auto Dupe"
-    if running then
-        task.spawn(function()
-            while running do
-                local speed = tonumber(SpeedBox.Text) or 100
-                for _ = 1, speed do
-                    Remote:FireServer(tier)
-                end
-                task.wait(1)
-            end
-        end)
-    end
-end)
-
 -- Kill UI Button
 if KillUIButton then KillUIButton:Destroy() end
 KillUIButton = Instance.new("TextButton", Scroll)
