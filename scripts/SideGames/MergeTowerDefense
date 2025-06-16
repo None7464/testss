@@ -1,4 +1,3 @@
-
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local localPlayer = Players.LocalPlayer
@@ -19,6 +18,24 @@ end
 local gun 
 if tool and tool:FindFirstChild("GunClient") and tool:FindFirstChild("Configuration") then
     gun = tool
+end
+
+-- Check for existing UI and deletes it if it exists
+local CoreGui = game:GetService("CoreGui")
+local prev = CoreGui:FindFirstChild("ClaimGUI")
+if prev then
+    -- Try to reset toggles if possible
+    pcall(function()
+        if _G then
+            _G.autobuy = false
+            _G.automerge = false
+            _G.autoupgrade = false
+        end
+    end)
+    pcall(function()
+        if _G then _G.instantkill = false end
+    end)
+    prev:Destroy()
 end
 
 -- UI Setup
@@ -65,8 +82,9 @@ TopBar.ClipsDescendants = true
 TopBar.TextStrokeTransparency = 0.8
 TopBar.TextStrokeColor3 = Color3.fromRGB(0,0,0)
 TopBar.TextWrapped = true
-TopBar.UICorner = Instance.new("UICorner", TopBar)
-TopBar.UICorner.CornerRadius = UDim.new(0, 8)
+local topBarCorner = Instance.new("UICorner")
+topBarCorner.CornerRadius = UDim.new(0, 8)
+topBarCorner.Parent = TopBar
 
 -- Section Headers
 local function makeHeader(text, y)
