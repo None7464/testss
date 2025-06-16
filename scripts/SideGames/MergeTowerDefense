@@ -344,15 +344,10 @@ if SettingsLabel then SettingsLabel:Destroy() end
 if DupeLabel then DupeLabel:Destroy() end
 if BuyLabel then BuyLabel:Destroy() end
 
-local dupeBox = makeSettingBox("Dupe Per Second:", SpeedBox, settingsY+0)
-local buyBox = makeSettingBox("Buy Amount:", BuyAmountDropdown, settingsY+48)
-
--- SpeedBox and Auto Claim Toggle
+-- Create SpeedBox and BuyAmountDropdown before makeSettingBox
 if SpeedBox then SpeedBox:Destroy() end
-SpeedBox = Instance.new("TextBox", Scroll)
-SpeedBox.Size = UDim2.new(0, 170, 0, rowh)
-SpeedBox.Position = UDim2.new(0, col1x, 0, 260)
-SpeedBox.PlaceholderText = "Claims/sec (e.g. 100)"
+SpeedBox = Instance.new("TextBox")
+SpeedBox.PlaceholderText = "Dupe/sec (e.g. 100)"
 SpeedBox.Text = "100"
 SpeedBox.BackgroundColor3 = Color3.fromRGB(40, 40, 60)
 SpeedBox.TextColor3 = Color3.new(1, 1, 1)
@@ -364,6 +359,17 @@ SpeedBox.ZIndex = 4
 local corner = Instance.new("UICorner", SpeedBox)
 corner.CornerRadius = UDim.new(0, 8)
 
+if BuyAmountDropdown then BuyAmountDropdown:Destroy() end
+BuyAmountDropdown = Instance.new("TextButton")
+BuyAmountDropdown.Text = "Buy Amount: "..tostring(buyamount)
+styleBtn(BuyAmountDropdown, Color3.fromRGB(60, 60, 90))
+BuyAmountDropdown.ZIndex = 4
+
+-- Now create the settings boxes
+local dupeBox = makeSettingBox("Dupe Per Second:", SpeedBox, settingsY+0)
+local buyBox = makeSettingBox("Buy Amount:", BuyAmountDropdown, settingsY+48)
+
+-- SpeedBox and Auto Claim Toggle
 if Toggle then Toggle:Destroy() end
 Toggle = Instance.new("TextButton", Scroll)
 Toggle.Size = UDim2.new(0, 170, 0, rowh)
