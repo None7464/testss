@@ -374,11 +374,11 @@ if Toggle then Toggle:Destroy() end
 Toggle = Instance.new("TextButton", Scroll)
 Toggle.Size = UDim2.new(0, 170, 0, rowh)
 Toggle.Position = UDim2.new(0, col2x, 0, 260)
-Toggle.Text = "▶ Start Auto Claim"
+Toggle.Text = "▶ Start Auto Dupe"
 styleBtn(Toggle, Color3.fromRGB(50, 50, 80))
 Toggle.MouseButton1Click:Connect(function()
     running = not running
-    Toggle.Text = running and "⏸ Stop Auto Claim" or "▶ Start Auto Claim"
+    Toggle.Text = running and "⏸ Stop Auto Dupe" or "▶ Start Auto Dupe"
     if running then
         task.spawn(function()
             while running do
