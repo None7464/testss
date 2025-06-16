@@ -7,8 +7,6 @@ local instantkill = false
 local autobuy = false
 local automerge = false
 local autoupgrade = false
-local autoconvert = false
-local collectmoney = false
 local buyamount = 1
 local buyamounts = {1,3,10,30,50,100,1000,10000}
 local tycoon
@@ -51,7 +49,7 @@ ScreenGui.Name = "ClaimGUI"
 local isMinimized = false
 local miniBtn
 
--- Main Frame
+-- Main Frame (not ScrollingFrame)
 local Frame = Instance.new("Frame", ScreenGui)
 Frame.Size = UDim2.new(0, 400, 0, 320)
 Frame.Position = UDim2.new(0, 50, 0, 50)
@@ -238,6 +236,10 @@ end
 local col1x, col2x = 20, 210
 local rowh = 40
 
+-- Add new toggles
+local autoconvert = false
+local collectmoney = false
+
 -- Helper for toggle buttons (returns button and state variable)
 local function makeToggleBtn2(parent, label, pos, defaultColor)
     local btn = Instance.new("TextButton", parent)
@@ -256,12 +258,16 @@ local mainY = 55
 local colA, colB = 20, 210
 local rowH = 44
 
+-- Row 1
 local AutoDupeBtn = makeToggleBtn2(Scroll, "Auto Dupe", UDim2.new(0, colA, 0, mainY), Color3.fromRGB(50, 120, 80))
 local AutoConvertBtn = makeToggleBtn2(Scroll, "AutoConvert", UDim2.new(0, colB, 0, mainY), Color3.fromRGB(80, 80, 120))
+-- Row 2
 local InstantKillBtn = makeToggleBtn2(Scroll, "InstantKill", UDim2.new(0, colA, 0, mainY+rowH), Color3.fromRGB(100, 40, 40))
 local CollectMoneyBtn = makeToggleBtn2(Scroll, "Auto Collect Money", UDim2.new(0, colB, 0, mainY+rowH), Color3.fromRGB(120, 100, 40))
+-- Row 3
 local AutobuyBtn = makeToggleBtn2(Scroll, "Auto Buy Tower", UDim2.new(0, colA, 0, mainY+rowH*2), Color3.fromRGB(60, 60, 90))
 local AutomergeBtn = makeToggleBtn2(Scroll, "Auto Merge Tower", UDim2.new(0, colB, 0, mainY+rowH*2), Color3.fromRGB(60, 60, 90))
+-- Row 4 (full width)
 local AutoupgradeBtn = makeToggleBtn2(Scroll, "Auto Upgrade Rate", UDim2.new(0, colA, 0, mainY+rowH*3), Color3.fromRGB(60, 60, 90))
 AutoupgradeBtn.Size = UDim2.new(0, 370, 0, 36)
 
@@ -306,6 +312,7 @@ AutoupgradeBtn.MouseButton1Click:Connect(function()
     AutoupgradeBtn.BackgroundColor3 = autoupgrade and Color3.fromRGB(80, 120, 80) or Color3.fromRGB(60, 60, 90)
 end)
 
+-- Settings Section as mini UIs
 local settingsY = mainY+rowH*4+20
 local function makeSettingBox(label, control, y)
     local box = Instance.new("Frame", Scroll)
@@ -332,10 +339,12 @@ local function makeSettingBox(label, control, y)
     return box
 end
 
+-- Remove old settings labels
 if SettingsLabel then SettingsLabel:Destroy() end
 if DupeLabel then DupeLabel:Destroy() end
 if BuyLabel then BuyLabel:Destroy() end
 
+-- Create SpeedBox and BuyAmountDropdown before makeSettingBox
 if SpeedBox then SpeedBox:Destroy() end
 SpeedBox = Instance.new("TextBox")
 SpeedBox.PlaceholderText = "Dupe/sec (e.g. 100)"
@@ -356,6 +365,66 @@ BuyAmountDropdown.Text = "Buy Amount: "..tostring(buyamount)
 styleBtn(BuyAmountDropdown, Color3.fromRGB(60, 60, 90))
 BuyAmountDropdown.ZIndex = 4
 
+-- Create dropdown menu for buy amounts
+local dropdownFrame = Instance.new("Frame", BuyAmountDropdown)
+dropdownFrame.Size = UDim2.new(1, 0, 0, 0)
+dropdownFrame.Position = UDim2.new(0, 0, 1, 5)
+dropdownFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 60)
+dropdownFrame.BorderSizePixel = 0
+dropdownFrame.Visible = false
+dropdownFrame.ZIndex = 5
+local corner = Instance.new("UICorner", dropdownFrame)
+corner.CornerRadius = UDim.new(0, 8)
+
+-- Add dropdown options
+for i, amount in ipairs(buyamounts) do
+    local option = Instance.new("TextButton", dropdownFrame)
+    option.Size = UDim2.new(1, 0, 0, 30)
+    option.Position = UDim2.new(0, 0, 0, (i-1) * 30)
+    option.Text = tostring(amount)
+    option.BackgroundColor3 = Color3.fromRGB(50, 50, 80)
+    option.TextColor3 = Color3.new(1, 1, 1)
+    option.BorderSizePixel = 0
+    option.TextSize = 16
+    option.Font = Enum.Font.Gotham
+    option.ZIndex = 6
+    
+    local optionCorner = Instance.new("UICorner", option)
+    optionCorner.CornerRadius = UDim.new(0, 8)
+    
+    option.MouseButton1Click:Connect(function()
+        buyamount = amount
+        BuyAmountDropdown.Text = "Buy Amount: "..tostring(amount)
+        dropdownFrame.Visible = false
+    end)
+    
+    option.MouseEnter:Connect(function()
+        option.BackgroundColor3 = Color3.fromRGB(70, 70, 120)
+    end)
+    
+    option.MouseLeave:Connect(function()
+        option.BackgroundColor3 = Color3.fromRGB(50, 50, 80)
+    end)
+end
+
+-- Update dropdown frame size based on number of options
+dropdownFrame.Size = UDim2.new(1, 0, 0, #buyamounts * 30)
+
+-- Toggle dropdown visibility
+BuyAmountDropdown.MouseButton1Click:Connect(function()
+    dropdownFrame.Visible = not dropdownFrame.Visible
+end)
+
+-- Close dropdown when clicking outside
+game:GetService("UserInputService").InputBegan:Connect(function(input, gameProcessed)
+    if not gameProcessed and input.UserInputType == Enum.UserInputType.MouseButton1 then
+        if not BuyAmountDropdown:IsDescendantOf(input.Target) then
+            dropdownFrame.Visible = false
+        end
+    end
+end)
+
+-- Now create the settings boxes
 local dupeBox = makeSettingBox("Dupe Per Second:", SpeedBox, settingsY+0)
 local buyBox = makeSettingBox("Buy Amount:", BuyAmountDropdown, settingsY+48)
 
