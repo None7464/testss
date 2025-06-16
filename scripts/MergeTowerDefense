@@ -1,0 +1,255 @@
+
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local localPlayer = Players.LocalPlayer
+local tier = localPlayer:GetAttribute("Tier")
+local Remote = ReplicatedStorage.Signals.RemoteEvents:FindFirstChild("GetWoolRemote")
+local instantkill = false
+local autobuy = false
+local automerge = false
+local autoupgrade = false
+local buyamount = 1
+local buyamounts = {1,3,10,30,50,100,1000,10000}
+local tycoon
+for _,v in workspace.Tycoon.Tycoons:GetChildren() do
+    if v.Owner.Value == localPlayer then
+        tycoon = v
+    end
+end
+local gun 
+if tool and tool:FindFirstChild("GunClient") and tool:FindFirstChild("Configuration") then
+    gun = tool
+end
+
+-- UI Setup
+local ScreenGui = Instance.new("ScreenGui", game:GetService("CoreGui"))
+ScreenGui.Name = "ClaimGUI"
+
+local Frame = Instance.new("Frame", ScreenGui)
+Frame.Size = UDim2.new(0, 320, 0, 260)
+Frame.Position = UDim2.new(0, 30, 0, 30)
+Frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+Frame.BorderSizePixel = 0
+Frame.Active = true
+Frame.Draggable = false
+
+-- Top Bar for Dragging
+local TopBar = Instance.new("TextButton", Frame)
+TopBar.Size = UDim2.new(1, 0, 0, 30)
+TopBar.Position = UDim2.new(0, 0, 0, 0)
+TopBar.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+TopBar.Text = "Merge Tower Defense - By Dev-Jay"
+TopBar.TextColor3 = Color3.new(1,1,1)
+TopBar.Font = Enum.Font.SourceSansBold
+TopBar.TextSize = 18
+TopBar.AutoButtonColor = false
+
+-- Drag logic (PC & Mobile)
+local dragging, dragInput, dragStart, startPos
+TopBar.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true
+        dragStart = input.Position
+        startPos = Frame.Position
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then dragging = false end
+        end)
+    end
+end)
+TopBar.InputChanged:Connect(function(input)
+    if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+        local delta = input.Position - dragStart
+        Frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+    end
+end)
+
+-- Instantkill Toggle (status in button)
+local InstantKillBtn = Instance.new("TextButton", Frame)
+InstantKillBtn.Size = UDim2.new(0, 120, 0, 40)
+InstantKillBtn.Position = UDim2.new(0, 10, 0, 40)
+InstantKillBtn.Text = "💀 Instantkill: OFF"
+InstantKillBtn.TextSize = 18
+InstantKillBtn.BackgroundColor3 = Color3.fromRGB(80, 30, 30)
+InstantKillBtn.TextColor3 = Color3.new(1,1,1)
+InstantKillBtn.BorderSizePixel = 0
+
+InstantKillBtn.MouseButton1Click:Connect(function()
+    instantkill = not instantkill
+    InstantKillBtn.Text = instantkill and "💀 Instantkill: ON" or "💀 Instantkill: OFF"
+    InstantKillBtn.TextColor3 = instantkill and Color3.fromRGB(255,80,80) or Color3.new(1,1,1)
+    if instantkill then
+        game.StarterGui:SetCore("SendNotification", {Title="Instantkill", Text="Instantkill enabled!", Duration=2})
+    else
+        game.StarterGui:SetCore("SendNotification", {Title="Instantkill", Text="Instantkill disabled!", Duration=2})
+    end
+end)
+
+-- Autobuy, Automerge, Autoupgrade Buttons (status in button)
+local function makeToggleBtn(name, y, stateVar)
+    local btn = Instance.new("TextButton", Frame)
+    btn.Size = UDim2.new(0, 120, 0, 32)
+    btn.Position = UDim2.new(0, 10, 0, 90 + (y-1)*38)
+    btn.Text = name..": OFF"
+    btn.BackgroundColor3 = Color3.fromRGB(50, 50, 80)
+    btn.TextColor3 = Color3.new(1,1,1)
+    btn.BorderSizePixel = 0
+    btn.TextSize = 16
+    btn.MouseButton1Click:Connect(function()
+        _G[stateVar] = not _G[stateVar]
+        btn.Text = name..": "..(_G[stateVar] and "ON" or "OFF")
+        btn.BackgroundColor3 = _G[stateVar] and Color3.fromRGB(80, 120, 80) or Color3.fromRGB(50, 50, 80)
+    end)
+    return btn
+end
+
+_G.autobuy = false
+_G.automerge = false
+_G.autoupgrade = false
+local AutobuyBtn = makeToggleBtn("Autobuy", 1, "autobuy")
+local AutomergeBtn = makeToggleBtn("Automerge", 2, "automerge")
+local AutoupgradeBtn = makeToggleBtn("Autoupgrade", 3, "autoupgrade")
+
+-- Buyamount Dropdown (status in button)
+local BuyAmountDropdown = Instance.new("TextButton", Frame)
+BuyAmountDropdown.Size = UDim2.new(0, 120, 0, 32)
+BuyAmountDropdown.Position = UDim2.new(0, 10, 0, 204)
+BuyAmountDropdown.Text = "Buy Amount: "..tostring(buyamount)
+BuyAmountDropdown.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+BuyAmountDropdown.TextColor3 = Color3.new(1,1,1)
+BuyAmountDropdown.BorderSizePixel = 0
+BuyAmountDropdown.TextSize = 16
+
+local dropdownOpen = false
+local dropdownFrame
+BuyAmountDropdown.MouseButton1Click:Connect(function()
+    if dropdownOpen then
+        if dropdownFrame then dropdownFrame:Destroy() end
+        dropdownOpen = false
+        return
+    end
+    dropdownOpen = true
+    dropdownFrame = Instance.new("Frame", Frame)
+    dropdownFrame.Size = UDim2.new(0, 120, 0, #buyamounts*28)
+    dropdownFrame.Position = UDim2.new(0, 10, 0, 236)
+    dropdownFrame.BackgroundColor3 = Color3.fromRGB(50,50,50)
+    dropdownFrame.BorderSizePixel = 0
+    for i,amt in ipairs(buyamounts) do
+        local opt = Instance.new("TextButton", dropdownFrame)
+        opt.Size = UDim2.new(1,0,0,28)
+        opt.Position = UDim2.new(0,0,0,(i-1)*28)
+        opt.Text = tostring(amt)
+        opt.BackgroundColor3 = Color3.fromRGB(60,60,60)
+        opt.TextColor3 = Color3.new(1,1,1)
+        opt.BorderSizePixel = 0
+        opt.TextSize = 15
+        opt.MouseButton1Click:Connect(function()
+            buyamount = amt
+            BuyAmountDropdown.Text = "Buy Amount: "..tostring(amt)
+            dropdownFrame:Destroy()
+            dropdownOpen = false
+        end)
+    end
+end)
+
+-- SpeedBox and Auto Claim Toggle
+local SpeedBox = Instance.new("TextBox", Frame)
+SpeedBox.Size = UDim2.new(0, 120, 0, 30)
+SpeedBox.Position = UDim2.new(0, 160, 0, 40)
+SpeedBox.PlaceholderText = "Claims/sec (e.g. 100)"
+SpeedBox.Text = "100"
+SpeedBox.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+SpeedBox.TextColor3 = Color3.new(1, 1, 1)
+SpeedBox.BorderSizePixel = 0
+SpeedBox.TextSize = 16
+
+local Toggle = Instance.new("TextButton", Frame)
+Toggle.Size = UDim2.new(0, 120, 0, 30)
+Toggle.Position = UDim2.new(0, 160, 0, 80)
+Toggle.Text = "▶ Start Auto Claim"
+Toggle.TextColor3 = Color3.new(1, 1, 1)
+Toggle.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+Toggle.BorderSizePixel = 0
+Toggle.TextSize = 16
+
+local running = false
+Toggle.Activated:Connect(function()
+    running = not running
+    Toggle.Text = running and "⏸ Stop Auto Claim" or "▶ Start Auto Claim"
+    if running then
+        task.spawn(function()
+            while running do
+                local speed = tonumber(SpeedBox.Text) or 100
+                for _ = 1, speed do
+                    Remote:FireServer(tier)
+                end
+                task.wait(1)
+            end
+        end)
+    end
+end)
+
+-- Kill UI Button
+local KillUIButton = Instance.new("TextButton", Frame)
+KillUIButton.Size = UDim2.new(0, 120, 0, 30)
+KillUIButton.Position = UDim2.new(0, 160, 0, 120)
+KillUIButton.Text = "✖ Kill UI"
+KillUIButton.TextColor3 = Color3.new(1, 1, 1)
+KillUIButton.BackgroundColor3 = Color3.fromRGB(120, 40, 40)
+KillUIButton.BorderSizePixel = 0
+KillUIButton.TextSize = 16
+
+KillUIButton.MouseButton1Click:Connect(function()
+    instantkill = false
+    _G.autobuy = false
+    _G.automerge = false
+    _G.autoupgrade = false
+    running = false
+    buyamount = 1
+    InstantKillBtn.Text = "💀 Instantkill: OFF"
+    InstantKillBtn.TextColor3 = Color3.new(1,1,1)
+    AutobuyBtn.Text = "Autobuy: OFF"
+    AutobuyBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 80)
+    AutomergeBtn.Text = "Automerge: OFF"
+    AutomergeBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 80)
+    AutoupgradeBtn.Text = "Autoupgrade: OFF"
+    AutoupgradeBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 80)
+    BuyAmountDropdown.Text = "Buy Amount: 1"
+    Toggle.Text = "▶ Start Auto Claim"
+    ScreenGui:Destroy()
+end)
+
+spawn(function()
+    while true do
+        if _G.autobuy and tycoon then
+            local char = localPlayer.Character or localPlayer.CharacterAdded:Wait()
+            firetouchinterest(tycoon.Buttons_E["Add"..buyamount].Head, char.HumanoidRootPart, 0)
+            firetouchinterest(tycoon.Buttons_E["Add"..buyamount].Head, char.HumanoidRootPart, 1)
+        end
+        if _G.automerge and tycoon then
+            local char = localPlayer.Character or localPlayer.CharacterAdded:Wait()
+            firetouchinterest(tycoon.Buttons_E.Merge.Head, char.HumanoidRootPart, 0)
+            firetouchinterest(tycoon.Buttons_E.Merge.Head, char.HumanoidRootPart, 1)
+        end
+        if _G.autoupgrade and tycoon then
+            local char = localPlayer.Character or localPlayer.CharacterAdded:Wait()
+            firetouchinterest(tycoon.Buttons_E.Upgrade.Head, char.HumanoidRootPart, 0)
+            firetouchinterest(tycoon.Buttons_E.Upgrade.Head, char.HumanoidRootPart, 1)
+        end
+        wait(0.2)
+    end
+end)
+
+spawn(function()
+    while true do
+        if instantkill and gun and tycoon and tycoon:FindFirstChild("Round") then
+            for i = 1,10 do
+                for _,v in ipairs(tycoon.Round:GetChildren()) do
+                    if v:FindFirstChild("Humanoid") then
+                        v.Humanoid.Health = 0
+                    end
+                end
+            end
+        end
+        wait(0.5)
+    end
+end)
