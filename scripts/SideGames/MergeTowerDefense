@@ -205,7 +205,7 @@ local function makeHeader(text, y)
     lbl.ZIndex = 3
     return lbl
 end
-makeHeader("Toggles", 55)
+makeHeader("Main", 55)
 makeHeader("Automation", 145)
 makeHeader("Settings", 235)
 
@@ -236,100 +236,120 @@ end
 local col1x, col2x = 20, 210
 local rowh = 40
 
--- Instantkill Toggle
-InstantKillBtn = Instance.new("TextButton", Scroll)
-InstantKillBtn.Size = UDim2.new(0, 170, 0, rowh)
-InstantKillBtn.Position = UDim2.new(0, col1x, 0, 80)
-InstantKillBtn.Text = "💀 Instantkill: OFF"
-styleBtn(InstantKillBtn, Color3.fromRGB(100, 40, 40))
+-- Add new toggles
+local autoconvert = false
+local collectmoney = false
+
+-- Helper for toggle buttons (returns button and state variable)
+local function makeToggleBtn2(parent, label, pos, defaultColor)
+    local btn = Instance.new("TextButton", parent)
+    btn.Size = UDim2.new(0, 180, 0, 36)
+    btn.Position = pos
+    btn.Text = label .. ": OFF"
+    styleBtn(btn, defaultColor or Color3.fromRGB(50, 50, 80))
+    btn.TextSize = 16
+    btn.Font = Enum.Font.Gotham
+    btn.ZIndex = 4
+    return btn
+end
+
+-- Main Section Layout
+local mainY = 55
+local colA, colB = 20, 210
+local rowH = 44
+
+-- Row 1
+local AutoClaimBtn = makeToggleBtn2(Scroll, "AutoClaim", UDim2.new(0, colA, 0, mainY), Color3.fromRGB(50, 120, 80))
+local AutoConvertBtn = makeToggleBtn2(Scroll, "AutoConvert", UDim2.new(0, colB, 0, mainY), Color3.fromRGB(80, 80, 120))
+-- Row 2
+local InstantKillBtn = makeToggleBtn2(Scroll, "InstantKill", UDim2.new(0, colA, 0, mainY+rowH), Color3.fromRGB(100, 40, 40))
+local CollectMoneyBtn = makeToggleBtn2(Scroll, "Auto Collect Money", UDim2.new(0, colB, 0, mainY+rowH), Color3.fromRGB(120, 100, 40))
+-- Row 3
+local AutobuyBtn = makeToggleBtn2(Scroll, "Auto Buy Tower", UDim2.new(0, colA, 0, mainY+rowH*2), Color3.fromRGB(60, 60, 90))
+local AutomergeBtn = makeToggleBtn2(Scroll, "Auto Merge Tower", UDim2.new(0, colB, 0, mainY+rowH*2), Color3.fromRGB(60, 60, 90))
+-- Row 4 (full width)
+local AutoupgradeBtn = makeToggleBtn2(Scroll, "Auto Upgrade Rate", UDim2.new(0, colA, 0, mainY+rowH*3), Color3.fromRGB(60, 60, 90))
+AutoupgradeBtn.Size = UDim2.new(0, 370, 0, 36)
+
+-- Toggle logic
+local running = false
+AutoClaimBtn.MouseButton1Click:Connect(function()
+    running = not running
+    AutoClaimBtn.Text = running and "AutoClaim: ON" or "AutoClaim: OFF"
+    AutoClaimBtn.BackgroundColor3 = running and Color3.fromRGB(80, 120, 80) or Color3.fromRGB(50, 120, 80)
+end)
+AutoConvertBtn.MouseButton1Click:Connect(function()
+    autoconvert = not autoconvert
+    AutoConvertBtn.Text = autoconvert and "AutoConvert: ON" or "AutoConvert: OFF"
+    AutoConvertBtn.BackgroundColor3 = autoconvert and Color3.fromRGB(120, 120, 180) or Color3.fromRGB(80, 80, 120)
+end)
 InstantKillBtn.MouseButton1Click:Connect(function()
     instantkill = not instantkill
-    InstantKillBtn.Text = instantkill and "💀 Instantkill: ON" or "💀 Instantkill: OFF"
-    InstantKillBtn.TextColor3 = instantkill and Color3.fromRGB(255,80,80) or Color3.new(1,1,1)
-    if instantkill then
-        if not gun then
-            game.StarterGui:SetCore("SendNotification", {Title="Instantkill", Text="Equip your gun for instantkill to work!", Duration=3})
-        else
-            game.StarterGui:SetCore("SendNotification", {Title="Instantkill", Text="Instantkill enabled!", Duration=2})
-        end
-    else
-        game.StarterGui:SetCore("SendNotification", {Title="Instantkill", Text="Instantkill disabled!", Duration=2})
+    InstantKillBtn.Text = instantkill and "InstantKill: ON" or "InstantKill: OFF"
+    InstantKillBtn.BackgroundColor3 = instantkill and Color3.fromRGB(255,80,80) or Color3.fromRGB(100, 40, 40)
+    if instantkill and not gun then
+        game.StarterGui:SetCore("SendNotification", {Title="Instantkill", Text="Equip your gun for instantkill to work!", Duration=3})
     end
 end)
-
--- Autobuy, Automerge, Autoupgrade Buttons
-if AutobuyBtn then AutobuyBtn:Destroy() end
-if AutomergeBtn then AutomergeBtn:Destroy() end
-if AutoupgradeBtn then AutoupgradeBtn:Destroy() end
-AutobuyBtn = Instance.new("TextButton", Scroll)
-AutobuyBtn.Size = UDim2.new(0, 170, 0, rowh)
-AutobuyBtn.Position = UDim2.new(0, col1x, 0, 170)
-AutobuyBtn.Text = "Autobuy: OFF"
-styleBtn(AutobuyBtn)
+CollectMoneyBtn.MouseButton1Click:Connect(function()
+    collectmoney = not collectmoney
+    CollectMoneyBtn.Text = collectmoney and "Auto Collect Money: ON" or "Auto Collect Money: OFF"
+    CollectMoneyBtn.BackgroundColor3 = collectmoney and Color3.fromRGB(200, 180, 80) or Color3.fromRGB(120, 100, 40)
+end)
 AutobuyBtn.MouseButton1Click:Connect(function()
-    _G.autobuy = not _G.autobuy
-    AutobuyBtn.Text = "Autobuy: "..(_G.autobuy and "ON" or "OFF")
-    AutobuyBtn.BackgroundColor3 = _G.autobuy and Color3.fromRGB(80, 120, 80) or Color3.fromRGB(50, 50, 80)
+    autobuy = not autobuy
+    AutobuyBtn.Text = autobuy and "Auto Buy Tower: ON" or "Auto Buy Tower: OFF"
+    AutobuyBtn.BackgroundColor3 = autobuy and Color3.fromRGB(80, 120, 80) or Color3.fromRGB(60, 60, 90)
 end)
-AutomergeBtn = Instance.new("TextButton", Scroll)
-AutomergeBtn.Size = UDim2.new(0, 170, 0, rowh)
-AutomergeBtn.Position = UDim2.new(0, col2x, 0, 170)
-AutomergeBtn.Text = "Automerge: OFF"
-styleBtn(AutomergeBtn)
 AutomergeBtn.MouseButton1Click:Connect(function()
-    _G.automerge = not _G.automerge
-    AutomergeBtn.Text = "Automerge: "..(_G.automerge and "ON" or "OFF")
-    AutomergeBtn.BackgroundColor3 = _G.automerge and Color3.fromRGB(80, 120, 80) or Color3.fromRGB(50, 50, 80)
+    automerge = not automerge
+    AutomergeBtn.Text = automerge and "Auto Merge Tower: ON" or "Auto Merge Tower: OFF"
+    AutomergeBtn.BackgroundColor3 = automerge and Color3.fromRGB(80, 120, 80) or Color3.fromRGB(60, 60, 90)
 end)
-AutoupgradeBtn = Instance.new("TextButton", Scroll)
-AutoupgradeBtn.Size = UDim2.new(0, 170, 0, rowh)
-AutoupgradeBtn.Position = UDim2.new(0, col2x, 0, 215)
-AutoupgradeBtn.Text = "Autoupgrade: OFF"
-styleBtn(AutoupgradeBtn)
 AutoupgradeBtn.MouseButton1Click:Connect(function()
-    _G.autoupgrade = not _G.autoupgrade
-    AutoupgradeBtn.Text = "Autoupgrade: "..(_G.autoupgrade and "ON" or "OFF")
-    AutoupgradeBtn.BackgroundColor3 = _G.autoupgrade and Color3.fromRGB(80, 120, 80) or Color3.fromRGB(50, 50, 80)
+    autoupgrade = not autoupgrade
+    AutoupgradeBtn.Text = autoupgrade and "Auto Upgrade Rate: ON" or "Auto Upgrade Rate: OFF"
+    AutoupgradeBtn.BackgroundColor3 = autoupgrade and Color3.fromRGB(80, 120, 80) or Color3.fromRGB(60, 60, 90)
 end)
 
--- Buyamount Dropdown (fix: always show all values)
-if BuyAmountDropdown then BuyAmountDropdown:Destroy() end
-BuyAmountDropdown = Instance.new("TextButton", Scroll)
-BuyAmountDropdown.Size = UDim2.new(0, 170, 0, rowh)
-BuyAmountDropdown.Position = UDim2.new(0, col2x, 0, 80)
-BuyAmountDropdown.Text = "Buy Amount: "..tostring(buyamount)
-styleBtn(BuyAmountDropdown, Color3.fromRGB(60, 60, 90))
-local dropdownOpen = false
-local dropdownFrame
-BuyAmountDropdown.MouseButton1Click:Connect(function()
-    if dropdownOpen then
-        if dropdownFrame then dropdownFrame:Destroy() end
-        dropdownOpen = false
-        return
-    end
-    dropdownOpen = true
-    dropdownFrame = Instance.new("Frame", Scroll)
-    dropdownFrame.Size = UDim2.new(0, 170, 0, #buyamounts*28)
-    dropdownFrame.Position = UDim2.new(0, col2x, 0, 120)
-    dropdownFrame.BackgroundColor3 = Color3.fromRGB(50,50,70)
-    dropdownFrame.BorderSizePixel = 0
-    dropdownFrame.ZIndex = 5
-    local corner = Instance.new("UICorner", dropdownFrame)
-    corner.CornerRadius = UDim.new(0, 8)
-    for i,amt in ipairs(buyamounts) do
-        local opt = Instance.new("TextButton", dropdownFrame)
-        opt.Size = UDim2.new(1,0,0,28)
-        opt.Position = UDim2.new(0,0,0,(i-1)*28)
-        opt.Text = tostring(amt)
-        styleBtn(opt, Color3.fromRGB(60,60,90))
-        opt.MouseButton1Click:Connect(function()
-            buyamount = amt
-            BuyAmountDropdown.Text = "Buy Amount: "..tostring(amt)
-            dropdownFrame:Destroy()
-            dropdownOpen = false
-        end)
-    end
-end)
+-- Settings Section
+local settingsY = mainY+rowH*4+20
+local SettingsLabel = Instance.new("TextLabel", Scroll)
+SettingsLabel.Size = UDim2.new(1, -40, 0, 22)
+SettingsLabel.Position = UDim2.new(0, 20, 0, settingsY)
+SettingsLabel.BackgroundTransparency = 1
+SettingsLabel.Text = "Settings"
+SettingsLabel.TextColor3 = Color3.fromRGB(180, 180, 200)
+SettingsLabel.Font = Enum.Font.GothamSemibold
+SettingsLabel.TextSize = 16
+SettingsLabel.TextXAlignment = Enum.TextXAlignment.Left
+SettingsLabel.ZIndex = 3
+
+-- Dupe Per Second
+local DupeLabel = Instance.new("TextLabel", Scroll)
+DupeLabel.Size = UDim2.new(0, 180, 0, 32)
+DupeLabel.Position = UDim2.new(0, colA, 0, settingsY+30)
+DupeLabel.BackgroundTransparency = 1
+DupeLabel.Text = "Dupe Per Second:"
+DupeLabel.TextColor3 = Color3.fromRGB(200, 200, 220)
+DupeLabel.Font = Enum.Font.Gotham
+DupeLabel.TextSize = 15
+DupeLabel.TextXAlignment = Enum.TextXAlignment.Left
+DupeLabel.ZIndex = 3
+SpeedBox.Position = UDim2.new(0, colB, 0, settingsY+30)
+
+-- Buy Amount Dropdown
+local BuyLabel = Instance.new("TextLabel", Scroll)
+BuyLabel.Size = UDim2.new(0, 180, 0, 32)
+BuyLabel.Position = UDim2.new(0, colA, 0, settingsY+70)
+BuyLabel.BackgroundTransparency = 1
+BuyLabel.Text = "Buy Amount:"
+BuyLabel.TextColor3 = Color3.fromRGB(200, 200, 220)
+BuyLabel.Font = Enum.Font.Gotham
+BuyLabel.TextSize = 15
+BuyLabel.TextXAlignment = Enum.TextXAlignment.Left
+BuyLabel.ZIndex = 3
+BuyAmountDropdown.Position = UDim2.new(0, colB, 0, settingsY+70)
 
 -- SpeedBox and Auto Claim Toggle
 if SpeedBox then SpeedBox:Destroy() end
@@ -343,6 +363,8 @@ SpeedBox.TextColor3 = Color3.new(1, 1, 1)
 SpeedBox.BorderSizePixel = 0
 SpeedBox.TextSize = 17
 SpeedBox.Font = Enum.Font.Gotham
+SpeedBox.ClearTextOnFocus = false
+SpeedBox.ZIndex = 4
 local corner = Instance.new("UICorner", SpeedBox)
 corner.CornerRadius = UDim.new(0, 8)
 
@@ -396,29 +418,42 @@ KillUIButton.MouseButton1Click:Connect(function()
     ScreenGui:Destroy()
 end)
 
+-- Automation Loop
 spawn(function()
     while true do
-        if _G.autobuy and tycoon then
+        if running and Remote then
+            local speed = tonumber(SpeedBox.Text) or 100
+            for _ = 1, speed do
+                Remote:FireServer(tier)
+            end
+        end
+        if autoconvert then
+            ReplicatedStorage.Signals.RemoteEvents.PutRemote:FireServer()
+        end
+        if collectmoney then
+            local char = localPlayer.Character or localPlayer.CharacterAdded:Wait()
+            for _,v in workspace:GetChildren() do
+                if v.Name == "Money" then
+                    firetouchinterest(v, char.HumanoidRootPart, 0)
+                    firetouchinterest(v, char.HumanoidRootPart, 1)
+                end
+            end
+        end
+        if autobuy and tycoon then
             local char = localPlayer.Character or localPlayer.CharacterAdded:Wait()
             firetouchinterest(tycoon.Buttons_E["Add"..buyamount].Head, char.HumanoidRootPart, 0)
             firetouchinterest(tycoon.Buttons_E["Add"..buyamount].Head, char.HumanoidRootPart, 1)
         end
-        if _G.automerge and tycoon then
+        if automerge and tycoon then
             local char = localPlayer.Character or localPlayer.CharacterAdded:Wait()
             firetouchinterest(tycoon.Buttons_E.Merge.Head, char.HumanoidRootPart, 0)
             firetouchinterest(tycoon.Buttons_E.Merge.Head, char.HumanoidRootPart, 1)
         end
-        if _G.autoupgrade and tycoon then
+        if autoupgrade and tycoon then
             local char = localPlayer.Character or localPlayer.CharacterAdded:Wait()
             firetouchinterest(tycoon.Buttons_E.Upgrade.Head, char.HumanoidRootPart, 0)
             firetouchinterest(tycoon.Buttons_E.Upgrade.Head, char.HumanoidRootPart, 1)
         end
-        wait(0.2)
-    end
-end)
-
-spawn(function()
-    while true do
         if instantkill and gun and tycoon and tycoon:FindFirstChild("Round") then
             for i = 1,10 do
                 for _,v in ipairs(tycoon.Round:GetChildren()) do
@@ -428,6 +463,6 @@ spawn(function()
                 end
             end
         end
-        wait(0.5)
+        wait(0.2)
     end
 end)
