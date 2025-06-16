@@ -20,6 +20,9 @@ if tool and tool:FindFirstChild("GunClient") and tool:FindFirstChild("Configurat
     gun = tool
 end
 
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+
 -- Check for existing UI and deletes it if it exists
 local CoreGui = game:GetService("CoreGui")
 local prev = CoreGui:FindFirstChild("ClaimGUI")
@@ -42,7 +45,11 @@ end
 local ScreenGui = Instance.new("ScreenGui", game:GetService("CoreGui"))
 ScreenGui.Name = "ClaimGUI"
 
---UI redesign
+-- Hide/minimize logic
+local isMinimized = false
+local miniBtn
+
+-- Main Frame (not ScrollingFrame)
 local Frame = Instance.new("Frame", ScreenGui)
 Frame.Size = UDim2.new(0, 400, 0, 320)
 Frame.Position = UDim2.new(0, 50, 0, 50)
@@ -63,7 +70,19 @@ Shadow.BackgroundTransparency = 1
 Shadow.ImageTransparency = 0.7
 Shadow.ZIndex = 1
 
--- Top Bar for Dragging
+-- ScrollingFrame for content
+local Scroll = Instance.new("ScrollingFrame", Frame)
+Scroll.Size = UDim2.new(1, 0, 1, -40)
+Scroll.Position = UDim2.new(0, 0, 0, 40)
+Scroll.BackgroundTransparency = 1
+Scroll.BorderSizePixel = 0
+Scroll.CanvasSize = UDim2.new(0, 0, 0, 400)
+Scroll.ScrollBarThickness = 8
+Scroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
+Scroll.ClipsDescendants = true
+Scroll.ZIndex = 2
+
+-- Top Bar for Dragging and Hide
 local TopBar = Instance.new("TextButton", Frame)
 TopBar.Size = UDim2.new(1, 0, 0, 40)
 TopBar.Position = UDim2.new(0, 0, 0, 0)
@@ -86,9 +105,95 @@ local topBarCorner = Instance.new("UICorner")
 topBarCorner.CornerRadius = UDim.new(0, 8)
 topBarCorner.Parent = TopBar
 
+-- Hide/Minimize Button
+local HideBtn = Instance.new("TextButton", TopBar)
+HideBtn.Size = UDim2.new(0, 32, 0, 32)
+HideBtn.Position = UDim2.new(1, -38, 0, 4)
+HideBtn.Text = "_"
+HideBtn.TextSize = 24
+HideBtn.BackgroundColor3 = Color3.fromRGB(60, 60, 90)
+HideBtn.TextColor3 = Color3.new(1,1,1)
+HideBtn.BorderSizePixel = 0
+HideBtn.ZIndex = 4
+local hideCorner = Instance.new("UICorner", HideBtn)
+hideCorner.CornerRadius = UDim.new(0, 8)
+
+local function minimizeUI()
+    Frame.Visible = false
+    isMinimized = true
+    if UserInputService.TouchEnabled then
+        -- Mobile: show mini draggable button
+        miniBtn = Instance.new("TextButton", ScreenGui)
+        miniBtn.Size = UDim2.new(0, 60, 0, 60)
+        miniBtn.Position = UDim2.new(0.5, -30, 0.5, -30)
+        miniBtn.Text = "▶"
+        miniBtn.BackgroundColor3 = Color3.fromRGB(60, 60, 90)
+        miniBtn.TextColor3 = Color3.new(1,1,1)
+        miniBtn.BorderSizePixel = 0
+        local miniCorner = Instance.new("UICorner", miniBtn)
+        miniCorner.CornerRadius = UDim.new(1, 0)
+        local dragging = false
+        local dragStart, startPos
+        miniBtn.InputBegan:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.Touch then
+                dragging = true
+                dragStart = input.Position
+                startPos = miniBtn.Position
+                input.Changed:Connect(function()
+                    if input.UserInputState == Enum.UserInputState.End then dragging = false end
+                end)
+            end
+        end)
+        miniBtn.InputChanged:Connect(function(input)
+            if dragging and input.UserInputType == Enum.UserInputType.Touch then
+                local delta = input.Position - dragStart
+                miniBtn.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+            end
+        end)
+        miniBtn.MouseButton1Click:Connect(function()
+            Frame.Visible = true
+            isMinimized = false
+            miniBtn:Destroy()
+        end)
+    end
+end
+HideBtn.MouseButton1Click:Connect(minimizeUI)
+
+-- PC: LeftControl toggles UI
+UserInputService.InputBegan:Connect(function(input, processed)
+    if not processed and input.KeyCode == Enum.KeyCode.LeftControl and not UserInputService.TouchEnabled then
+        if isMinimized then
+            Frame.Visible = true
+            isMinimized = false
+            if miniBtn then miniBtn:Destroy() end
+        else
+            minimizeUI()
+        end
+    end
+end)
+
+-- Custom Drag Logic (PC & Mobile)
+local dragging, dragInput, dragStart, startPos
+TopBar.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true
+        dragStart = input.Position
+        startPos = Frame.Position
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then dragging = false end
+        end)
+    end
+end)
+TopBar.InputChanged:Connect(function(input)
+    if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+        local delta = input.Position - dragStart
+        Frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+    end
+end)
+
 -- Section Headers
 local function makeHeader(text, y)
-    local lbl = Instance.new("TextLabel", Frame)
+    local lbl = Instance.new("TextLabel", Scroll)
     lbl.Size = UDim2.new(0, 180, 0, 22)
     lbl.Position = UDim2.new(0, 20, 0, y)
     lbl.BackgroundTransparency = 1
@@ -132,7 +237,7 @@ local col1x, col2x = 20, 210
 local rowh = 40
 
 -- Instantkill Toggle
-InstantKillBtn = Instance.new("TextButton", Frame)
+InstantKillBtn = Instance.new("TextButton", Scroll)
 InstantKillBtn.Size = UDim2.new(0, 170, 0, rowh)
 InstantKillBtn.Position = UDim2.new(0, col1x, 0, 80)
 InstantKillBtn.Text = "💀 Instantkill: OFF"
@@ -142,7 +247,11 @@ InstantKillBtn.MouseButton1Click:Connect(function()
     InstantKillBtn.Text = instantkill and "💀 Instantkill: ON" or "💀 Instantkill: OFF"
     InstantKillBtn.TextColor3 = instantkill and Color3.fromRGB(255,80,80) or Color3.new(1,1,1)
     if instantkill then
-        game.StarterGui:SetCore("SendNotification", {Title="Instantkill", Text="Instantkill enabled!", Duration=2})
+        if not gun then
+            game.StarterGui:SetCore("SendNotification", {Title="Instantkill", Text="Equip your gun for instantkill to work!", Duration=3})
+        else
+            game.StarterGui:SetCore("SendNotification", {Title="Instantkill", Text="Instantkill enabled!", Duration=2})
+        end
     else
         game.StarterGui:SetCore("SendNotification", {Title="Instantkill", Text="Instantkill disabled!", Duration=2})
     end
@@ -152,7 +261,7 @@ end)
 if AutobuyBtn then AutobuyBtn:Destroy() end
 if AutomergeBtn then AutomergeBtn:Destroy() end
 if AutoupgradeBtn then AutoupgradeBtn:Destroy() end
-AutobuyBtn = Instance.new("TextButton", Frame)
+AutobuyBtn = Instance.new("TextButton", Scroll)
 AutobuyBtn.Size = UDim2.new(0, 170, 0, rowh)
 AutobuyBtn.Position = UDim2.new(0, col1x, 0, 170)
 AutobuyBtn.Text = "Autobuy: OFF"
@@ -162,7 +271,7 @@ AutobuyBtn.MouseButton1Click:Connect(function()
     AutobuyBtn.Text = "Autobuy: "..(_G.autobuy and "ON" or "OFF")
     AutobuyBtn.BackgroundColor3 = _G.autobuy and Color3.fromRGB(80, 120, 80) or Color3.fromRGB(50, 50, 80)
 end)
-AutomergeBtn = Instance.new("TextButton", Frame)
+AutomergeBtn = Instance.new("TextButton", Scroll)
 AutomergeBtn.Size = UDim2.new(0, 170, 0, rowh)
 AutomergeBtn.Position = UDim2.new(0, col2x, 0, 170)
 AutomergeBtn.Text = "Automerge: OFF"
@@ -172,7 +281,7 @@ AutomergeBtn.MouseButton1Click:Connect(function()
     AutomergeBtn.Text = "Automerge: "..(_G.automerge and "ON" or "OFF")
     AutomergeBtn.BackgroundColor3 = _G.automerge and Color3.fromRGB(80, 120, 80) or Color3.fromRGB(50, 50, 80)
 end)
-AutoupgradeBtn = Instance.new("TextButton", Frame)
+AutoupgradeBtn = Instance.new("TextButton", Scroll)
 AutoupgradeBtn.Size = UDim2.new(0, 170, 0, rowh)
 AutoupgradeBtn.Position = UDim2.new(0, col2x, 0, 215)
 AutoupgradeBtn.Text = "Autoupgrade: OFF"
@@ -183,9 +292,9 @@ AutoupgradeBtn.MouseButton1Click:Connect(function()
     AutoupgradeBtn.BackgroundColor3 = _G.autoupgrade and Color3.fromRGB(80, 120, 80) or Color3.fromRGB(50, 50, 80)
 end)
 
--- Buyamount Dropdown
+-- Buyamount Dropdown (fix: always show all values)
 if BuyAmountDropdown then BuyAmountDropdown:Destroy() end
-BuyAmountDropdown = Instance.new("TextButton", Frame)
+BuyAmountDropdown = Instance.new("TextButton", Scroll)
 BuyAmountDropdown.Size = UDim2.new(0, 170, 0, rowh)
 BuyAmountDropdown.Position = UDim2.new(0, col2x, 0, 80)
 BuyAmountDropdown.Text = "Buy Amount: "..tostring(buyamount)
@@ -199,7 +308,7 @@ BuyAmountDropdown.MouseButton1Click:Connect(function()
         return
     end
     dropdownOpen = true
-    dropdownFrame = Instance.new("Frame", Frame)
+    dropdownFrame = Instance.new("Frame", Scroll)
     dropdownFrame.Size = UDim2.new(0, 170, 0, #buyamounts*28)
     dropdownFrame.Position = UDim2.new(0, col2x, 0, 120)
     dropdownFrame.BackgroundColor3 = Color3.fromRGB(50,50,70)
@@ -224,7 +333,7 @@ end)
 
 -- SpeedBox and Auto Claim Toggle
 if SpeedBox then SpeedBox:Destroy() end
-SpeedBox = Instance.new("TextBox", Frame)
+SpeedBox = Instance.new("TextBox", Scroll)
 SpeedBox.Size = UDim2.new(0, 170, 0, rowh)
 SpeedBox.Position = UDim2.new(0, col1x, 0, 260)
 SpeedBox.PlaceholderText = "Claims/sec (e.g. 100)"
@@ -238,7 +347,7 @@ local corner = Instance.new("UICorner", SpeedBox)
 corner.CornerRadius = UDim.new(0, 8)
 
 if Toggle then Toggle:Destroy() end
-Toggle = Instance.new("TextButton", Frame)
+Toggle = Instance.new("TextButton", Scroll)
 Toggle.Size = UDim2.new(0, 170, 0, rowh)
 Toggle.Position = UDim2.new(0, col2x, 0, 260)
 Toggle.Text = "▶ Start Auto Claim"
@@ -260,7 +369,7 @@ Toggle.MouseButton1Click:Connect(function()
 end)
 
 if KillUIButton then KillUIButton:Destroy() end
-KillUIButton = Instance.new("TextButton", Frame)
+KillUIButton = Instance.new("TextButton", Scroll)
 KillUIButton.Size = UDim2.new(0, 360, 0, 32)
 KillUIButton.Position = UDim2.new(0, 20, 0, 305)
 KillUIButton.Text = "✖ Close & Reset UI"
