@@ -260,6 +260,16 @@ local rowH = 44
 
 -- Row 1
 local AutoDupeBtn = makeToggleBtn2(Scroll, "Auto Dupe", UDim2.new(0, colA, 0, mainY), Color3.fromRGB(50, 120, 80))
+-- Add Basic/Extreme toggle beside Auto Dupe
+local DupeModeBtn = Instance.new("TextButton", Scroll)
+DupeModeBtn.Size = UDim2.new(0, 100, 0, 36)
+DupeModeBtn.Position = UDim2.new(0, colA + 185, 0, mainY)
+DupeModeBtn.Text = "Mode: Basic"
+styleBtn(DupeModeBtn, Color3.fromRGB(80, 80, 120))
+DupeModeBtn.TextSize = 15
+DupeModeBtn.Font = Enum.Font.Gotham
+DupeModeBtn.ZIndex = 4
+local basic = true
 local AutoConvertBtn = makeToggleBtn2(Scroll, "AutoConvert", UDim2.new(0, colB, 0, mainY), Color3.fromRGB(80, 80, 120))
 -- Row 2
 local InstantKillBtn = makeToggleBtn2(Scroll, "InstantKill", UDim2.new(0, colA, 0, mainY+rowH), Color3.fromRGB(100, 40, 40))
@@ -277,6 +287,11 @@ AutoDupeBtn.MouseButton1Click:Connect(function()
     running = not running
     AutoDupeBtn.Text = running and "Auto Dupe: ON" or "Auto Dupe: OFF"
     AutoDupeBtn.BackgroundColor3 = running and Color3.fromRGB(80, 120, 80) or Color3.fromRGB(50, 120, 80)
+end)
+DupeModeBtn.MouseButton1Click:Connect(function()
+    basic = not basic
+    DupeModeBtn.Text = basic and "Mode: Basic" or "Mode: Extreme"
+    DupeModeBtn.BackgroundColor3 = basic and Color3.fromRGB(80, 80, 120) or Color3.fromRGB(120, 40, 120)
 end)
 AutoConvertBtn.MouseButton1Click:Connect(function()
     autoconvert = not autoconvert
@@ -469,9 +484,16 @@ end)
 spawn(function()
     while true do
         if running and Remote then
-            local speed = tonumber(SpeedBox.Text) or 100
-            for _ = 1, speed do
-                Remote:FireServer(tier)
+            if basic then
+                local speed = tonumber(SpeedBox.Text) or 100
+                for _ = 1, speed do
+                    Remote:FireServer(tier)
+                end
+            else
+                for i = 1, 18 do
+                    Remote:FireServer(i)
+                    wait(0.1)
+                end
             end
         end
         if autoconvert then
@@ -501,7 +523,7 @@ spawn(function()
             firetouchinterest(tycoon.Buttons_E.Upgrade.Head, char.HumanoidRootPart, 0)
             firetouchinterest(tycoon.Buttons_E.Upgrade.Head, char.HumanoidRootPart, 1)
         end
-        if instantkill and gun and tycoon and tycoon:FindFirstChild("Round") then
+        if instantkill and gun then
             for i = 1,10 do
                 for _,v in ipairs(tycoon.Round:GetChildren()) do
                     if v:FindFirstChild("Humanoid") then
