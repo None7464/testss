@@ -89,10 +89,14 @@ end
 local function loadMainScript()
     local url = "https://raw.githubusercontent.com/None7464/testss/refs/heads/main/scripts/scptrl/loader.lua"
     loadstring(game:HttpGet(url))()
+    local queue_func = nil
     if type(queue_on_teleport) == "function" then
-        queue_on_teleport(('loadstring(game:HttpGet("%s"))()'):format(url))
+        queue_func = queue_on_teleport
     elseif type(queueonteleport) == "function" then
-        queueonteleport(('loadstring(game:HttpGet("%s"))()'):format(url))
+        queue_func = queueonteleport
+    end
+    if type(queue_func) == "function" then
+        queue_func(('loadstring(game:HttpGet("%s"))()'):format(url))
     end
 end
 
