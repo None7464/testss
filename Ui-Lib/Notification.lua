@@ -8,47 +8,45 @@ local padding = 10
 local container
 
 local AlertStyles = {
-	Info = { -- ℹ️ Info
-		Color = Color3.fromRGB(59, 130, 246),
-		Emoji = "ℹ️"
-	},
-	Error = { -- ❗ Error
-		Color = Color3.fromRGB(239, 68, 68),
-		Emoji = "❗"
-	},
-	Success = { -- ✔️ Success
-		Color = Color3.fromRGB(34, 197, 94),
-		Emoji = "✔️"
-	}
+	Info = { Color = Color3.fromRGB(59, 130, 246), Emoji = "ℹ️" },
+	Error = { Color = Color3.fromRGB(239, 68, 68), Emoji = "❗" },
+	Success = { Color = Color3.fromRGB(34, 197, 94), Emoji = "✔️" }
 }
 
 local function getContainer()
-	if container then return container end
+	if container and container.Parent then return container end
 
-	local playerGui = Players.LocalPlayer:WaitForChild("PlayerGui")
-	local screenGui = playerGui:FindFirstChild("NotifyGui") or Instance.new("ScreenGui")
-	screenGui.Name = "NotifyGui"
-	screenGui.IgnoreGuiInset = true
-	screenGui.ResetOnSpawn = false
-	screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-	screenGui.Parent = playerGui
+	local player = Players.LocalPlayer
+	local playerGui = player:FindFirstChild("PlayerGui") or player:WaitForChild("PlayerGui")
+	local screenGui = playerGui:FindFirstChild("NotifyGui")
+	if not screenGui then
+		screenGui = Instance.new("ScreenGui")
+		screenGui.Name = "NotifyGui"
+		screenGui.IgnoreGuiInset = true
+		screenGui.ResetOnSpawn = false
+		screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+		screenGui.Parent = playerGui
+	end
 
-	container = Instance.new("Frame")
-	container.Name = "NotificationContainer"
-	container.Size = UDim2.new(0, 320, 1, 0)
-	container.Position = UDim2.new(1, -330, 0, 60) -- top right, under the top bar
-	container.BackgroundTransparency = 1
-	container.AnchorPoint = Vector2.new(0, 0)
-	container.AutomaticSize = Enum.AutomaticSize.Y
-	container.Parent = screenGui
+	container = screenGui:FindFirstChild("NotificationContainer")
+	if not container then
+		container = Instance.new("Frame")
+		container.Name = "NotificationContainer"
+		container.Size = UDim2.new(0, 320, 1, 0)
+		container.Position = UDim2.new(1, -330, 0, 60)
+		container.BackgroundTransparency = 1
+		container.AnchorPoint = Vector2.new(0, 0)
+		container.AutomaticSize = Enum.AutomaticSize.Y
+		container.Parent = screenGui
 
-	local layout = Instance.new("UIListLayout")
-	layout.FillDirection = Enum.FillDirection.Vertical
-	layout.Padding = UDim.new(0, 6)
-	layout.HorizontalAlignment = Enum.HorizontalAlignment.Right
-	layout.VerticalAlignment = Enum.VerticalAlignment.Top
-	layout.SortOrder = Enum.SortOrder.LayoutOrder
-	layout.Parent = container
+		local layout = Instance.new("UIListLayout")
+		layout.FillDirection = Enum.FillDirection.Vertical
+		layout.Padding = UDim.new(0, 6)
+		layout.HorizontalAlignment = Enum.HorizontalAlignment.Right
+		layout.VerticalAlignment = Enum.VerticalAlignment.Top
+		layout.SortOrder = Enum.SortOrder.LayoutOrder
+		layout.Parent = container
+	end
 
 	return container
 end
@@ -63,7 +61,7 @@ local function buildNotificationFrame(alertType, message)
 	frame.Name = "Notification"
 	frame.AutomaticSize = Enum.AutomaticSize.Y
 	frame.ClipsDescendants = true
-	frame.LayoutOrder = os.clock() -- newer ones on bottom
+	frame.LayoutOrder = os.clock()
 	frame.Parent = container
 
 	Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 6)
@@ -74,12 +72,12 @@ local function buildNotificationFrame(alertType, message)
 	layout.Padding = UDim.new(0, 10)
 	layout.Parent = frame
 
-	local padding = Instance.new("UIPadding")
-	padding.PaddingTop = UDim.new(0, 6)
-	padding.PaddingBottom = UDim.new(0, 6)
-	padding.PaddingLeft = UDim.new(0, 10)
-	padding.PaddingRight = UDim.new(0, 10)
-	padding.Parent = frame
+	local paddingObj = Instance.new("UIPadding")
+	paddingObj.PaddingTop = UDim.new(0, 6)
+	paddingObj.PaddingBottom = UDim.new(0, 6)
+	paddingObj.PaddingLeft = UDim.new(0, 10)
+	paddingObj.PaddingRight = UDim.new(0, 10)
+	paddingObj.Parent = frame
 
 	local emoji = Instance.new("TextLabel")
 	emoji.Text = alertType.Emoji
@@ -115,13 +113,17 @@ local function buildNotificationFrame(alertType, message)
 	closeBtn.LayoutOrder = 3
 	closeBtn.Parent = frame
 
+	local destroyed = false
 	closeBtn.MouseButton1Click:Connect(function()
-		frame:Destroy()
+		if frame and frame.Parent then
+			destroyed = true
+			frame:Destroy()
+		end
 	end)
 
 	-- Optional auto-remove after 5 seconds
 	task.delay(5, function()
-		if frame and frame.Parent then
+		if not destroyed and frame and frame.Parent then
 			frame:Destroy()
 		end
 	end)
@@ -130,9 +132,17 @@ local function buildNotificationFrame(alertType, message)
 end
 
 local function animateAndWait(frame, duration)
-	local index = #container:GetChildren()
+	local container = getContainer()
+	-- Only count Frames (not UIListLayout, etc.)
+	local index = 0
+	for _, child in ipairs(container:GetChildren()) do
+		if child:IsA("Frame") then
+			index = index + 1
+		end
+	end
 	local finalY = -80 - (index - 1) * (frame.AbsoluteSize.Y + padding)
 
+	frame.Position = UDim2.new(1, 20, 1, finalY) -- Start offscreen
 	local showTween = TweenService:Create(frame, TweenInfo.new(0.35, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
 		Position = UDim2.new(1, -320, 1, finalY)
 	})
@@ -186,4 +196,4 @@ function Notify:Create(config)
 	handleQueue()
 end
 
-return Notify
+return Notify 
