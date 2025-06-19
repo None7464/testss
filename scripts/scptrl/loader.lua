@@ -87,7 +87,7 @@ local function checkExecutor()
 end
 
 local function loadMainScript()
-    local url = "https://raw.githubusercontent.com/None7464/testss/refs/heads/main/scripts/scptrl/loader.lua"
+    local url = "https://raw.githubusercontent.com/None7464/testss/refs/heads/main/scripts/scptrl/public.lua"
     loadstring(game:HttpGet(url))()
     local queue_func = nil
     if type(queue_on_teleport) == "function" then
