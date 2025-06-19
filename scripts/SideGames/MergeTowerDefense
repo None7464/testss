@@ -280,8 +280,6 @@ local basic = true
 layoutOrder = layoutOrder + 1
 local AutoConvertBtn = makeToggleBtn2(Scroll, "AutoConvert", layoutOrder, Color3.fromRGB(80, 80, 120))
 layoutOrder = layoutOrder + 1
-local InstantKillBtn = makeToggleBtn2(Scroll, "InstantKill", layoutOrder, Color3.fromRGB(100, 40, 40))
-layoutOrder = layoutOrder + 1
 local CollectMoneyBtn = makeToggleBtn2(Scroll, "Auto Collect Money", layoutOrder, Color3.fromRGB(120, 100, 40))
 layoutOrder = layoutOrder + 1
 local AutobuyBtn = makeToggleBtn2(Scroll, "Auto Buy Tower", layoutOrder, Color3.fromRGB(60, 60, 90))
@@ -308,14 +306,6 @@ AutoConvertBtn.MouseButton1Click:Connect(function()
     autoconvert = not autoconvert
     AutoConvertBtn.Text = autoconvert and "AutoConvert: ON" or "AutoConvert: OFF"
     AutoConvertBtn.BackgroundColor3 = autoconvert and Color3.fromRGB(120, 120, 180) or Color3.fromRGB(80, 80, 120)
-end)
-InstantKillBtn.MouseButton1Click:Connect(function()
-    instantkill = not instantkill
-    InstantKillBtn.Text = instantkill and "InstantKill: ON" or "InstantKill: OFF"
-    InstantKillBtn.BackgroundColor3 = instantkill and Color3.fromRGB(255,80,80) or Color3.fromRGB(100, 40, 40)
-    if instantkill and not gun then
-        game.StarterGui:SetCore("SendNotification", {Title="Instantkill", Text="Equip your gun for instantkill to work!", Duration=3})
-    end
 end)
 CollectMoneyBtn.MouseButton1Click:Connect(function()
     collectmoney = not collectmoney
@@ -476,8 +466,6 @@ KillUIButton.MouseButton1Click:Connect(function()
     AutoDupeBtn.BackgroundColor3 = Color3.fromRGB(50, 120, 80)
     AutoConvertBtn.Text = "AutoConvert: OFF"
     AutoConvertBtn.BackgroundColor3 = Color3.fromRGB(80, 80, 120)
-    InstantKillBtn.Text = "InstantKill: OFF"
-    InstantKillBtn.BackgroundColor3 = Color3.fromRGB(100, 40, 40)
     CollectMoneyBtn.Text = "Auto Collect Money: OFF"
     CollectMoneyBtn.BackgroundColor3 = Color3.fromRGB(120, 100, 40)
     AutobuyBtn.Text = "Auto Buy Tower: OFF"
@@ -533,15 +521,6 @@ spawn(function()
             local char = localPlayer.Character or localPlayer.CharacterAdded:Wait()
             firetouchinterest(tycoon.Buttons_E.Upgrade.Head, char.HumanoidRootPart, 0)
             firetouchinterest(tycoon.Buttons_E.Upgrade.Head, char.HumanoidRootPart, 1)
-        end
-        if instantkill and gun then
-            for i = 1,10 do
-                for _,v in ipairs(tycoon.Round:GetChildren()) do
-                    if v:FindFirstChild("Humanoid") then
-                        v.Humanoid.Health = 0
-                    end
-                end
-            end
         end
         wait(0.2)
     end
