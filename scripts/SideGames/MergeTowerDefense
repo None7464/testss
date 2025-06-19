@@ -442,7 +442,11 @@ end)
 
 -- Now create the settings boxes
 local dupeBox = makeSettingBox("Dupe Per Second:", SpeedBox, settingsY+0)
+dupeBox.LayoutOrder = layoutOrder
+layoutOrder = layoutOrder + 1
 local buyBox = makeSettingBox("Buy Amount:", BuyAmountDropdown, settingsY+48)
+buyBox.LayoutOrder = layoutOrder
+layoutOrder = layoutOrder + 1
 
 -- Kill UI Button
 if KillUIButton then KillUIButton:Destroy() end
@@ -489,10 +493,8 @@ spawn(function()
                     Remote:FireServer(tier)
                 end
             else
-                for i = 1, 18 do
-                    Remote:FireServer(i)
-                    wait(0.1)
-                end
+                Remote:FireServer(tier)
+                task.wait(0)
             end
         end
         if autoconvert then
