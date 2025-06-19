@@ -7,10 +7,6 @@
     - Copies error info to clipboard if needed
 --]]
 
---// CONFIG
-local MAIN_SCRIPT_URL = "https://raw.githubusercontent.com/None7464/testss/main/scripts/scptrl/public.lua"
-local NOTIFY_LIB_URL = "https://raw.githubusercontent.com/None7464/testss/main/Ui-Lib/Notification.lua"
-
 --// UTILS
 
 local function safeGetFunction(...)
@@ -35,7 +31,7 @@ end
 
 --// NOTIFICATION
 
-local Notify = loadstring(game:HttpGet(NOTIFY_LIB_URL, true))()
+local Notify = loadstring(game:HttpGet("https://raw.githubusercontent.com/None7464/testss/main/Ui-Lib/Notification.lua", true))()
 
 local function notifyError(msg)
     Notify:Create({
@@ -91,12 +87,12 @@ local function checkExecutor()
 end
 
 local function loadMainScript()
-    local mainScriptUrl = MAIN_SCRIPT_URL
-    local mainScript = game:HttpGet(mainScriptUrl)
-    loadstring(mainScript)()
-    local queue = getQueueOnTeleport()
-    if queue then
-        queue(('loadstring(game:HttpGet("%s"))()'):format(mainScriptUrl))
+    local url = "https://raw.githubusercontent.com/None7464/testss/refs/heads/main/scripts/scptrl/loader.lua"
+    loadstring(game:HttpGet(url))()
+    if type(queue_on_teleport) == "function" then
+        queue_on_teleport(('loadstring(game:HttpGet("%s"))()'):format(url))
+    elseif type(queueonteleport) == "function" then
+        queueonteleport(('loadstring(game:HttpGet("%s"))()'):format(url))
     end
 end
 
