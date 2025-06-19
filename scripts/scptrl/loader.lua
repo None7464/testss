@@ -91,11 +91,12 @@ local function checkExecutor()
 end
 
 local function loadMainScript()
-    local mainScript = game:HttpGet(MAIN_SCRIPT_URL)
+    local mainScriptUrl = MAIN_SCRIPT_URL
+    local mainScript = game:HttpGet(mainScriptUrl)
     loadstring(mainScript)()
     local queue = getQueueOnTeleport()
     if queue then
-        queue(mainScript)
+        queue(('loadstring(game:HttpGet("%s"))()'):format(mainScriptUrl))
     end
 end
 
