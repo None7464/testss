@@ -22,15 +22,15 @@ local function safeGetFunction(...)
     return nil
 end
 
+local function getQueueOnTeleport()
+    return safeGetFunction(queue_on_teleport, syn and syn.queue_on_teleport, queueonteleport)
+end
+
 local function copyToClipboard(text)
     local setclip = safeGetFunction(setclipboard, writeclipboard, set_clipboard, write_clipboard)
     if setclip then
         setclip(text)
     end
-end
-
-local function getQueueOnTeleport()
-    return safeGetFunction(queue_on_teleport, syn and syn.queue_on_teleport, queueonteleport)
 end
 
 --// NOTIFICATION
