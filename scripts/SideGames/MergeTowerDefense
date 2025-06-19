@@ -82,6 +82,11 @@ Scroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
 Scroll.ClipsDescendants = true
 Scroll.ZIndex = 2
 
+-- Add UIListLayout for vertical stacking
+local listLayout = Instance.new("UIListLayout", Scroll)
+listLayout.SortOrder = Enum.SortOrder.LayoutOrder
+listLayout.Padding = UDim.new(0, 8)
+
 -- Top Bar for Dragging and Hide
 local TopBar = Instance.new("TextButton", Frame)
 TopBar.Size = UDim2.new(1, 0, 0, 40)
@@ -192,10 +197,9 @@ TopBar.InputChanged:Connect(function(input)
 end)
 
 -- Section Headers
-local function makeHeader(text, y)
+local function makeHeader(text)
     local lbl = Instance.new("TextLabel", Scroll)
-    lbl.Size = UDim2.new(0, 180, 0, 22)
-    lbl.Position = UDim2.new(0, 20, 0, y)
+    lbl.Size = UDim2.new(1, -40, 0, 22)
     lbl.BackgroundTransparency = 1
     lbl.Text = text
     lbl.TextColor3 = Color3.fromRGB(180, 180, 200)
@@ -203,11 +207,12 @@ local function makeHeader(text, y)
     lbl.TextSize = 16
     lbl.TextXAlignment = Enum.TextXAlignment.Left
     lbl.ZIndex = 3
+    lbl.LayoutOrder = 0
     return lbl
 end
-makeHeader("Main", 55)
-makeHeader("Automation", 145)
-makeHeader("Settings", 235)
+makeHeader("Main").LayoutOrder = 1
+makeHeader("Automation").LayoutOrder = 10
+makeHeader("Settings").LayoutOrder = 20
 
 -- Helper for button style
 local function styleBtn(btn, color)
@@ -241,15 +246,15 @@ local autoconvert = false
 local collectmoney = false
 
 -- Helper for toggle buttons (returns button and state variable)
-local function makeToggleBtn2(parent, label, pos, defaultColor)
+local function makeToggleBtn2(parent, label, layoutOrder, defaultColor)
     local btn = Instance.new("TextButton", parent)
-    btn.Size = UDim2.new(0, 180, 0, 36)
-    btn.Position = pos
+    btn.Size = UDim2.new(1, -40, 0, 36)
     btn.Text = label .. ": OFF"
     styleBtn(btn, defaultColor or Color3.fromRGB(50, 50, 80))
     btn.TextSize = 16
     btn.Font = Enum.Font.Gotham
     btn.ZIndex = 4
+    btn.LayoutOrder = layoutOrder
     return btn
 end
 
@@ -259,27 +264,33 @@ local colA, colB = 20, 210
 local rowH = 44
 
 -- Row 1
-local AutoDupeBtn = makeToggleBtn2(Scroll, "Auto Dupe", UDim2.new(0, colA, 0, mainY), Color3.fromRGB(50, 120, 80))
--- Add Basic/Extreme toggle beside Auto Dupe
+local layoutOrder = 11
+local AutoDupeBtn = makeToggleBtn2(Scroll, "Auto Dupe", layoutOrder, Color3.fromRGB(50, 120, 80))
+layoutOrder = layoutOrder + 1
+-- Add Basic/Extreme toggle directly below Auto Dupe
 local DupeModeBtn = Instance.new("TextButton", Scroll)
-DupeModeBtn.Size = UDim2.new(0, 100, 0, 36)
-DupeModeBtn.Position = UDim2.new(0, colA + 185, 0, mainY)
+DupeModeBtn.Size = UDim2.new(1, -40, 0, 32)
 DupeModeBtn.Text = "Mode: Basic"
 styleBtn(DupeModeBtn, Color3.fromRGB(80, 80, 120))
 DupeModeBtn.TextSize = 15
 DupeModeBtn.Font = Enum.Font.Gotham
 DupeModeBtn.ZIndex = 4
+DupeModeBtn.LayoutOrder = layoutOrder
 local basic = true
-local AutoConvertBtn = makeToggleBtn2(Scroll, "AutoConvert", UDim2.new(0, colB, 0, mainY), Color3.fromRGB(80, 80, 120))
--- Row 2
-local InstantKillBtn = makeToggleBtn2(Scroll, "InstantKill", UDim2.new(0, colA, 0, mainY+rowH), Color3.fromRGB(100, 40, 40))
-local CollectMoneyBtn = makeToggleBtn2(Scroll, "Auto Collect Money", UDim2.new(0, colB, 0, mainY+rowH), Color3.fromRGB(120, 100, 40))
--- Row 3
-local AutobuyBtn = makeToggleBtn2(Scroll, "Auto Buy Tower", UDim2.new(0, colA, 0, mainY+rowH*2), Color3.fromRGB(60, 60, 90))
-local AutomergeBtn = makeToggleBtn2(Scroll, "Auto Merge Tower", UDim2.new(0, colB, 0, mainY+rowH*2), Color3.fromRGB(60, 60, 90))
--- Row 4 (full width)
-local AutoupgradeBtn = makeToggleBtn2(Scroll, "Auto Upgrade Rate", UDim2.new(0, colA, 0, mainY+rowH*3), Color3.fromRGB(60, 60, 90))
-AutoupgradeBtn.Size = UDim2.new(0, 370, 0, 36)
+layoutOrder = layoutOrder + 1
+local AutoConvertBtn = makeToggleBtn2(Scroll, "AutoConvert", layoutOrder, Color3.fromRGB(80, 80, 120))
+layoutOrder = layoutOrder + 1
+local InstantKillBtn = makeToggleBtn2(Scroll, "InstantKill", layoutOrder, Color3.fromRGB(100, 40, 40))
+layoutOrder = layoutOrder + 1
+local CollectMoneyBtn = makeToggleBtn2(Scroll, "Auto Collect Money", layoutOrder, Color3.fromRGB(120, 100, 40))
+layoutOrder = layoutOrder + 1
+local AutobuyBtn = makeToggleBtn2(Scroll, "Auto Buy Tower", layoutOrder, Color3.fromRGB(60, 60, 90))
+layoutOrder = layoutOrder + 1
+local AutomergeBtn = makeToggleBtn2(Scroll, "Auto Merge Tower", layoutOrder, Color3.fromRGB(60, 60, 90))
+layoutOrder = layoutOrder + 1
+local AutoupgradeBtn = makeToggleBtn2(Scroll, "Auto Upgrade Rate", layoutOrder, Color3.fromRGB(60, 60, 90))
+AutoupgradeBtn.Size = UDim2.new(1, -40, 0, 36)
+AutoupgradeBtn.LayoutOrder = layoutOrder
 
 -- Toggle logic
 local running = false
