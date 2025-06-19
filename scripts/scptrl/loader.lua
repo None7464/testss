@@ -87,17 +87,7 @@ local function checkExecutor()
 end
 
 local function loadMainScript()
-    local url = "https://raw.githubusercontent.com/None7464/testss/refs/heads/main/scripts/scptrl/public.lua"
-    loadstring(game:HttpGet(url))()
-    local queue_func = nil
-    if type(queue_on_teleport) == "function" then
-        queue_func = queue_on_teleport
-    elseif type(queueonteleport) == "function" then
-        queue_func = queueonteleport
-    end
-    if type(queue_func) == "function" then
-        queue_func(('loadstring(game:HttpGet("%s"))()'):format(url))
-    end
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/None7464/testss/refs/heads/main/scripts/scptrl/public.lua"))()
 end
 
 local function main()
@@ -109,6 +99,17 @@ local function main()
     else
         loadMainScript()
     end
+end
+
+local url = "https://raw.githubusercontent.com/None7464/testss/refs/heads/main/scripts/scptrl/loader.lua"
+local queue_func = nil
+if type(queue_on_teleport) == "function" then
+    queue_func = queue_on_teleport
+elseif type(queueonteleport) == "function" then
+    queue_func = queueonteleport
+end
+if type(queue_func) == "function" then
+    queue_func(('loadstring(game:HttpGet("%s"))()'):format(url))
 end
 
 main()
