@@ -207,12 +207,15 @@ local function makeHeader(text)
     lbl.TextSize = 16
     lbl.TextXAlignment = Enum.TextXAlignment.Left
     lbl.ZIndex = 3
-    lbl.LayoutOrder = 0
     return lbl
 end
-makeHeader("Main").LayoutOrder = 1
-makeHeader("Automation").LayoutOrder = 10
-makeHeader("Settings").LayoutOrder = 20
+
+-- Create headers with proper layout order
+local mainHeader = makeHeader("Main")
+mainHeader.LayoutOrder = 1
+
+local settingsHeader = makeHeader("Settings")
+settingsHeader.LayoutOrder = 10
 
 -- Helper for button style
 local function styleBtn(btn, color)
@@ -237,16 +240,25 @@ local function styleBtn(btn, color)
     end)
 end
 
--- Column layout positions
-local col1x, col2x = 20, 210
-local rowh = 40
-
 -- Add new toggles
 local autoconvert = false
 local collectmoney = false
 
 -- Helper for toggle buttons (returns button and state variable)
 local function makeToggleBtn2(parent, label, layoutOrder, defaultColor)
+    local btn = Instance.new("TextButton", parent)
+    btn.Size = UDim2.new(0.48, -10, 0, 36)
+    btn.Text = label .. ": OFF"
+    styleBtn(btn, defaultColor or Color3.fromRGB(50, 50, 80))
+    btn.TextSize = 16
+    btn.Font = Enum.Font.Gotham
+    btn.ZIndex = 4
+    btn.LayoutOrder = layoutOrder
+    return btn
+end
+
+-- Helper for single column buttons
+local function makeSingleToggleBtn(parent, label, layoutOrder, defaultColor)
     local btn = Instance.new("TextButton", parent)
     btn.Size = UDim2.new(1, -40, 0, 36)
     btn.Text = label .. ": OFF"
@@ -258,18 +270,27 @@ local function makeToggleBtn2(parent, label, layoutOrder, defaultColor)
     return btn
 end
 
--- Main Section Layout
-local mainY = 55
-local colA, colB = 20, 210
-local rowH = 44
+-- Create a container for the main buttons with grid layout
+local mainButtonContainer = Instance.new("Frame", Scroll)
+mainButtonContainer.Size = UDim2.new(1, -40, 0, 200)
+mainButtonContainer.BackgroundTransparency = 1
+mainButtonContainer.LayoutOrder = 2
 
--- Row 1
-local layoutOrder = 11
-local AutoDupeBtn = makeToggleBtn2(Scroll, "Auto Dupe", layoutOrder, Color3.fromRGB(50, 120, 80))
+-- Add UIGridLayout for 2-column arrangement
+local gridLayout = Instance.new("UIGridLayout", mainButtonContainer)
+gridLayout.CellSize = UDim2.new(0.48, -5, 0, 36)
+gridLayout.CellPadding = UDim.new(0, 10, 0, 8)
+gridLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
+gridLayout.SortOrder = Enum.SortOrder.LayoutOrder
+
+-- Main Section Layout - 2 column grid
+local layoutOrder = 1
+
+local AutoDupeBtn = makeToggleBtn2(mainButtonContainer, "Auto Dupe", layoutOrder, Color3.fromRGB(50, 120, 80))
 layoutOrder = layoutOrder + 1
--- Add Basic/Extreme toggle directly below Auto Dupe
-local DupeModeBtn = Instance.new("TextButton", Scroll)
-DupeModeBtn.Size = UDim2.new(1, -40, 0, 32)
+
+local DupeModeBtn = Instance.new("TextButton", mainButtonContainer)
+DupeModeBtn.Size = UDim2.new(0.48, -10, 0, 36)
 DupeModeBtn.Text = "Mode: Basic"
 styleBtn(DupeModeBtn, Color3.fromRGB(80, 80, 120))
 DupeModeBtn.TextSize = 15
@@ -278,19 +299,21 @@ DupeModeBtn.ZIndex = 4
 DupeModeBtn.LayoutOrder = layoutOrder
 local basic = true
 layoutOrder = layoutOrder + 1
-local AutoConvertBtn = makeToggleBtn2(Scroll, "AutoConvert", layoutOrder, Color3.fromRGB(80, 80, 120))
-layoutOrder = layoutOrder + 1
-local CollectMoneyBtn = makeToggleBtn2(Scroll, "Auto Collect Money", layoutOrder, Color3.fromRGB(120, 100, 40))
-layoutOrder = layoutOrder + 1
-local AutobuyBtn = makeToggleBtn2(Scroll, "Auto Buy Tower", layoutOrder, Color3.fromRGB(60, 60, 90))
-layoutOrder = layoutOrder + 1
-local AutomergeBtn = makeToggleBtn2(Scroll, "Auto Merge Tower", layoutOrder, Color3.fromRGB(60, 60, 90))
-layoutOrder = layoutOrder + 1
-local AutoupgradeBtn = makeToggleBtn2(Scroll, "Auto Upgrade Rate", layoutOrder, Color3.fromRGB(60, 60, 90))
-AutoupgradeBtn.Size = UDim2.new(1, -40, 0, 36)
-AutoupgradeBtn.LayoutOrder = layoutOrder
 
--- Toggle logic
+local AutoConvertBtn = makeToggleBtn2(mainButtonContainer, "AutoConvert", layoutOrder, Color3.fromRGB(80, 80, 120))
+layoutOrder = layoutOrder + 1
+
+local CollectMoneyBtn = makeToggleBtn2(mainButtonContainer, "Auto Collect Money", layoutOrder, Color3.fromRGB(120, 100, 40))
+layoutOrder = layoutOrder + 1
+
+local AutobuyBtn = makeToggleBtn2(mainButtonContainer, "Auto Buy Tower", layoutOrder, Color3.fromRGB(60, 60, 90))
+layoutOrder = layoutOrder + 1
+
+local AutomergeBtn = makeToggleBtn2(mainButtonContainer, "Auto Merge Tower", layoutOrder, Color3.fromRGB(60, 60, 90))
+layoutOrder = layoutOrder + 1
+
+local AutoupgradeBtn = makeSingleToggleBtn(Scroll, "Auto Upgrade Rate", 3, Color3.fromRGB(60, 60, 90))
+
 local running = false
 AutoDupeBtn.MouseButton1Click:Connect(function()
     running = not running
@@ -329,13 +352,12 @@ AutoupgradeBtn.MouseButton1Click:Connect(function()
 end)
 
 -- Settings Section as mini UIs
-local settingsY = mainY+rowH*4+20
-local function makeSettingBox(label, control, y)
+local function makeSettingBox(label, control, layoutOrder)
     local box = Instance.new("Frame", Scroll)
-    box.Size = UDim2.new(0, 370, 0, 38)
-    box.Position = UDim2.new(0, 20, 0, y)
+    box.Size = UDim2.new(1, -40, 0, 38)
     box.BackgroundColor3 = Color3.fromRGB(40, 40, 60)
     box.BorderSizePixel = 0
+    box.LayoutOrder = layoutOrder
     local corner = Instance.new("UICorner", box)
     corner.CornerRadius = UDim.new(0, 8)
     local lbl = Instance.new("TextLabel", box)
@@ -355,13 +377,7 @@ local function makeSettingBox(label, control, y)
     return box
 end
 
--- Remove old settings labels
-if SettingsLabel then SettingsLabel:Destroy() end
-if DupeLabel then DupeLabel:Destroy() end
-if BuyLabel then BuyLabel:Destroy() end
-
 -- Create SpeedBox and BuyAmountDropdown before makeSettingBox
-if SpeedBox then SpeedBox:Destroy() end
 SpeedBox = Instance.new("TextBox")
 SpeedBox.PlaceholderText = "Dupe/sec (e.g. 100)"
 SpeedBox.Text = "100"
@@ -375,7 +391,6 @@ SpeedBox.ZIndex = 4
 local corner = Instance.new("UICorner", SpeedBox)
 corner.CornerRadius = UDim.new(0, 8)
 
-if BuyAmountDropdown then BuyAmountDropdown:Destroy() end
 BuyAmountDropdown = Instance.new("TextButton")
 BuyAmountDropdown.Text = "Buy Amount: "..tostring(buyamount)
 styleBtn(BuyAmountDropdown, Color3.fromRGB(60, 60, 90))
@@ -440,23 +455,18 @@ game:GetService("UserInputService").InputBegan:Connect(function(input, gameProce
     end
 end)
 
--- Now create the settings boxes
-local dupeBox = makeSettingBox("Dupe Per Second:", SpeedBox, settingsY+0)
-dupeBox.LayoutOrder = layoutOrder
-layoutOrder = layoutOrder + 1
-local buyBox = makeSettingBox("Buy Amount:", BuyAmountDropdown, settingsY+48)
-buyBox.LayoutOrder = layoutOrder
-layoutOrder = layoutOrder + 1
+-- Now create the settings boxes with proper layout order
+local dupeBox = makeSettingBox("Dupe Per Second:", SpeedBox, 11)
+local buyBox = makeSettingBox("Buy Amount:", BuyAmountDropdown, 12)
 
 -- Kill UI Button
-if KillUIButton then KillUIButton:Destroy() end
 KillUIButton = Instance.new("TextButton", Scroll)
-KillUIButton.Size = UDim2.new(0, 370, 0, 36)
-KillUIButton.Position = UDim2.new(0, 20, 0, settingsY+100)
+KillUIButton.Size = UDim2.new(1, -40, 0, 36)
 KillUIButton.Text = "✖ Kill UI"
 styleBtn(KillUIButton, Color3.fromRGB(120, 40, 40))
 KillUIButton.TextSize = 18
 KillUIButton.Font = Enum.Font.GothamBold
+KillUIButton.LayoutOrder = 13
 KillUIButton.MouseButton1Click:Connect(function()
     instantkill = false
     autobuy = false
@@ -483,7 +493,6 @@ KillUIButton.MouseButton1Click:Connect(function()
     ScreenGui:Destroy()
 end)
 
--- Automation Loop
 spawn(function()
     while true do
         if running and Remote then
@@ -494,7 +503,6 @@ spawn(function()
                 end
             else
                 Remote:FireServer(tier)
-                task.wait(0)
             end
         end
         if autoconvert then
