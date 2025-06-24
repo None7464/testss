@@ -1,4 +1,4 @@
--- v2
+-- v3
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local localPlayer = Players.LocalPlayer
@@ -87,6 +87,19 @@ Scroll.ZIndex = 2
 local listLayout = Instance.new("UIListLayout", Scroll)
 listLayout.SortOrder = Enum.SortOrder.LayoutOrder
 listLayout.Padding = UDim.new(0, 8)
+
+-- Create a container for the main buttons
+local mainButtonContainer = Instance.new("Frame", Scroll)
+mainButtonContainer.Size = UDim2.new(1, -40, 0, 200)
+mainButtonContainer.BackgroundTransparency = 1
+mainButtonContainer.LayoutOrder = 2
+
+-- Add UIGridLayout for 2-column button arrangement
+local gridLayout = Instance.new("UIGridLayout", mainButtonContainer)
+gridLayout.CellSize = UDim2.new(0.48, -5, 0, 36)
+gridLayout.CellPadding = UDim.new(0, 10, 0, 8)
+gridLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
+gridLayout.SortOrder = Enum.SortOrder.LayoutOrder
 
 -- Top Bar for Dragging and Hide
 local TopBar = Instance.new("TextButton", Frame)
@@ -271,24 +284,8 @@ local function makeSingleToggleBtn(parent, label, layoutOrder, defaultColor)
     return btn
 end
 
--- Create a container for the main buttons with grid layout
-local mainButtonContainer = Instance.new("Frame", Scroll)
-mainButtonContainer.Size = UDim2.new(1, -40, 0, 200)
-mainButtonContainer.BackgroundTransparency = 1
-mainButtonContainer.LayoutOrder = 2
-
--- Add UIGridLayout for 2-column arrangement
-local gridLayout = Instance.new("UIGridLayout", mainButtonContainer)
-gridLayout.CellSize = UDim2.new(0.48, -5, 0, 36)
-gridLayout.CellPadding = UDim.new(0, 10, 0, 8)
-gridLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
-gridLayout.SortOrder = Enum.SortOrder.LayoutOrder
-
--- Main Section Layout - 2 column grid
-local layoutOrder = 1
-
-local AutoDupeBtn = makeToggleBtn2(mainButtonContainer, "Auto Dupe", layoutOrder, Color3.fromRGB(50, 120, 80))
-layoutOrder = layoutOrder + 1
+-- Create buttons directly in Scroll with proper layout order
+local AutoDupeBtn = makeToggleBtn2(mainButtonContainer, "Auto Dupe", 1, Color3.fromRGB(50, 120, 80))
 
 local DupeModeBtn = Instance.new("TextButton", mainButtonContainer)
 DupeModeBtn.Size = UDim2.new(0.48, -10, 0, 36)
@@ -297,21 +294,16 @@ styleBtn(DupeModeBtn, Color3.fromRGB(80, 80, 120))
 DupeModeBtn.TextSize = 15
 DupeModeBtn.Font = Enum.Font.Gotham
 DupeModeBtn.ZIndex = 4
-DupeModeBtn.LayoutOrder = layoutOrder
+DupeModeBtn.LayoutOrder = 2
 local basic = true
-layoutOrder = layoutOrder + 1
 
-local AutoConvertBtn = makeToggleBtn2(mainButtonContainer, "AutoConvert", layoutOrder, Color3.fromRGB(80, 80, 120))
-layoutOrder = layoutOrder + 1
+local AutoConvertBtn = makeToggleBtn2(mainButtonContainer, "AutoConvert", 3, Color3.fromRGB(80, 80, 120))
 
-local CollectMoneyBtn = makeToggleBtn2(mainButtonContainer, "Auto Collect Money", layoutOrder, Color3.fromRGB(120, 100, 40))
-layoutOrder = layoutOrder + 1
+local CollectMoneyBtn = makeToggleBtn2(mainButtonContainer, "Auto Collect Money", 4, Color3.fromRGB(120, 100, 40))
 
-local AutobuyBtn = makeToggleBtn2(mainButtonContainer, "Auto Buy Tower", layoutOrder, Color3.fromRGB(60, 60, 90))
-layoutOrder = layoutOrder + 1
+local AutobuyBtn = makeToggleBtn2(mainButtonContainer, "Auto Buy Tower", 5, Color3.fromRGB(60, 60, 90))
 
-local AutomergeBtn = makeToggleBtn2(mainButtonContainer, "Auto Merge Tower", layoutOrder, Color3.fromRGB(60, 60, 90))
-layoutOrder = layoutOrder + 1
+local AutomergeBtn = makeToggleBtn2(mainButtonContainer, "Auto Merge Tower", 6, Color3.fromRGB(60, 60, 90))
 
 local AutoupgradeBtn = makeSingleToggleBtn(Scroll, "Auto Upgrade Rate", 3, Color3.fromRGB(60, 60, 90))
 
