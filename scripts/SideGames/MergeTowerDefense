@@ -1,4 +1,4 @@
--- v3
+-- v1
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local localPlayer = Players.LocalPlayer
@@ -97,7 +97,7 @@ mainButtonContainer.LayoutOrder = 2
 -- Add UIGridLayout for 2-column button arrangement
 local gridLayout = Instance.new("UIGridLayout", mainButtonContainer)
 gridLayout.CellSize = UDim2.new(0.48, -5, 0, 36)
-gridLayout.CellPadding = UDim.new(0, 10, 0, 8)
+gridLayout.CellPadding = UDim2.new(0, 10, 0, 8)
 gridLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
 gridLayout.SortOrder = Enum.SortOrder.LayoutOrder
 
